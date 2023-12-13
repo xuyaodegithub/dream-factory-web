@@ -13,7 +13,8 @@ console.log(env.VITE_MODE)
       port:8080
     },
     build:{
-      assetsDir:'static'
+      assetsDir:'static',
+      sourcemap:false
     },
   plugins: [
     vue(),

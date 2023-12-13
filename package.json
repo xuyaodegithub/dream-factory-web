@@ -4,15 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "serve": "vite --port 8080",
+    "build_test": "run-p type-check \"build-only-test {@}\" --",
+    "build_prod": "run-p type-check \"build-only-prod {@}\" --",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
-    "build-only": "vite build",
+    "build-only-test": "vite build --mode test",
+    "build-only-prod": "vite build --mode prod",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@authing/guard-vue3": "^5.3.2",
     "ant-design-vue": "^4.0.7",
     "pinia": "^2.1.7",
     "unplugin-vue-components": "^0.26.0",

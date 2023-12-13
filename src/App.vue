@@ -2,6 +2,15 @@
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
 import { Button } from 'ant-design-vue';
+import {onMounted,ref} from 'vue'
+const a =ref(11)
+onMounted(()=>{
+  console.log(111)
+  console.log(import.meta.env.VITE_MODE,import.meta.env.__APP_VERSION__)
+})
+function add (){
+  a.value++
+}
 </script>
 
 <template>
@@ -10,7 +19,7 @@ import { Button } from 'ant-design-vue';
 
     <div class="wrapper">
       <HelloWorld msg="You did it!" />
-      <a-button type="primary">Primary Button</a-button>
+      <a-button type="primary" @click='add'>Primary Button{{a}}</a-button>
       <a-button>Default Button</a-button>
       <a-button type="dashed">Dashed Button</a-button>
       <a-button type="text">Text Button</a-button>

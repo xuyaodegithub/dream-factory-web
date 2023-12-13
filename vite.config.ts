@@ -10,11 +10,22 @@ export default defineConfig(({ command, mode })=>{
 console.log(env.VITE_MODE)
   return{
     server:{
+      host:'dev.dreamher.cn',
       port:8080
     },
     build:{
       assetsDir:'static',
-      sourcemap:false
+      sourcemap:false,
+      commonjsOptions:{
+        include:[
+          /node_modules/
+        ]
+      },
+    },
+    optimizeDeps:{
+      include:[
+        "@authing/guard-vue3"
+      ]
     },
   plugins: [
     vue(),

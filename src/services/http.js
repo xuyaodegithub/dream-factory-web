@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'https://api.example.com', // 设置基础 URL
+  baseURL: 'https://api.example.com', // 设置基础 URL
+  withCredentials:true
 });
 
 // 请求拦截器

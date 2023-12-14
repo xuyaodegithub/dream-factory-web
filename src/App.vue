@@ -22,7 +22,8 @@ onMounted(async ()=>{
   await initAuthingWebUse(Authing)
   const authingSdkClass = authingSdk()
   const userInfoClass = userInfo()
-  if (authingSdkClass?.sdk.isRedirectCallback()) {
+  console.log(authingSdkClass,'authingSdkClass',authingSdkClass.sdk)
+  if (authingSdkClass?.sdk?.isRedirectCallback()) {
     console.log("redirect");
 
     /**
@@ -30,7 +31,7 @@ onMounted(async ()=>{
      * 需要配合 handleRedirectCallback 方法，在回调端点处理 Authing 发送
      * 的授权码或 token，获取用户登录态
      */
-    authingSdkClass?.sdk.handleRedirectCallback().then((res:any) => {
+    authingSdkClass?.sdk?.handleRedirectCallback().then((res:any) => {
       userInfoClass.saveUserInfo(res)
       router.replace("/");
     });

@@ -69,7 +69,6 @@ export const initAuthingWebUse=(Authing:any)=>{
     redirectUri: 'http://dev.dreamher.cn:8080/callback',
     useImplicitMode:import.meta.env.VITE_MODE !== 'prod'
   });
-  console.log("sdk",sdk);
   authingSdkClass.initSdk(sdk)
 
   // const getLoginState = async () => {

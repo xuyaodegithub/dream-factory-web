@@ -1,5 +1,8 @@
 {
   "files": [],
+  "compilerOptions": {
+    "preserveValueImports": false
+  },
   "references": [
     {
       "path": "./tsconfig.node.json"

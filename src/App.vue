@@ -11,12 +11,10 @@ import { Authing } from '@authing/web';
 import { authingSdk,userInfo} from '@/stores'
 const router = useRouter()
 const route = useRoute()
-
-
 const state = reactive({
   loginState: null,
 });
-const a =ref(11)
+const a = ref(11)
 const loading = ref(false)
 onBeforeMount(()=>{
 })
@@ -40,27 +38,13 @@ onMounted(async ()=>{
     // getLoginState()
   }
 })
-function add (){
+function add() {
   a.value++
 }
 </script>
 
 <template>
- <div class='app_content'>
-   <a-spin size="large" v-if='loading'/>
-   <RouterView v-else/>
- </div>
+  <Navbar />
 </template>
 
-<style scoped lang='less'>
-.app_content{
-  height: 100%;
-  position: relative;
-  .ant-spin-spinning{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-  }
-}
-</style>
+<style scoped lang='less'></style>

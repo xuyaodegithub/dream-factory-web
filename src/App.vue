@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-import { Button } from 'ant-design-vue';
-import {authingWebUse} from '@/authingConfig'
-import {onMounted,ref,onBeforeMount,nextTick,reactive} from 'vue'
-// import {router} from 'router'
+import {onMounted,ref,onBeforeMount,nextTick,reactive,defineProps} from 'vue'
+import { RouterView } from 'vue-router'
+defineProps<{
+  title?: string
+  likes?: number
+}>()
+import {initAuthingWebUse,getLoginState} from '@/authingConfig'
+import { useRouter, useRoute } from 'vue-router'
 import { Authing } from '@authing/web';
+import { authingSdk,userInfo} from '@/stores'
+const router = useRouter()
+const route = useRoute()
+
 
 const state = reactive({
   loginState: null,
 });
 const a =ref(11)
 const loading = ref(false)
-onMounted(()=>{
-  const { login,getLoginState,sdk} = authingWebUse(Authing)
-  if (sdk.isRedirectCallback()) {
+onBeforeMount(()=>{
+})
+onMounted(async ()=>{
+  await initAuthingWebUse(Authing)
+  const authingSdkClass = authingSdk()
+  const userInfoClass = userInfo()
+  if (authingSdkClass?.sdk.isRedirectCallback()) {
     console.log("redirect");
 
     /**
@@ -22,14 +32,13 @@ onMounted(()=>{
      * 需要配合 handleRedirectCallback 方法，在回调端点处理 Authing 发送
      * 的授权码或 token，获取用户登录态
      */
-    sdk.handleRedirectCallback().then((res) => {
-      state.loginState = res;
-      this.$router.replace("/");
+    authingSdkClass?.sdk.handleRedirectCallback().then((res:any) => {
+      userInfoClass.saveUserInfo(res)
+      router.replace("/");
     });
   } else {
-    getLoginState();
+    // getLoginState()
   }
-  // setTimeout(login,5000)
 })
 function add (){
   a.value++

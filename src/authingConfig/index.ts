@@ -1,5 +1,6 @@
 import { createGuard } from '@authing/guard-vue3'
 import router from '../router'
+import { authingSdk,userInfo } from '@/stores'
 export default function(app:any){
   app.use(
     createGuard({
@@ -37,11 +38,11 @@ export const handleAuthingLoginCallback = (useGuard:any) => {
       // 之后你在这些页面可以通过 trackSession 方法获取用户登录态和用户信息
       // 示例一：跳转到固定页面
       router.replace('/')
-      resolve()
+      resolve(guard)
       // 示例二：获取自定义 state，进行特定操作
       // const search = window.location.search
       // 从 URL search 中解析 state
-    } catch (e) {
+    } catch (e:any) {
       // 登录失败，推荐再次跳转到登录页面
       guard.startWithRedirect();
       reject(e)
@@ -55,30 +56,40 @@ export const getUserInfo = async (useGuard:any) => {
   const _userInfo:any = await guard.trackSession()
   return _userInfo
 }
-export const authingWebUse=(Authing:any)=>{
+/**
+ * 初始化authing实例，并存在store
+ * **/
+export const initAuthingWebUse=(Authing:any)=>{
+  const authingSdkClass = authingSdk()
   const sdk:any= new Authing({
     // 应用的认证地址，例如：https://domain.authing.cn
     domain: 'https://dev-digital-dream.authing.cn',
     appId: '657913fbfbfd927b809a3cc3',
     // 登录回调地址，需要在控制台『应用配置 - 登录回调 URL』中指定
     redirectUri: 'http://dev.dreamher.cn:8080/callback',
-    useImplicitMode:true
+    useImplicitMode:import.meta.env.VITE_MODE !== 'prod'
   });
-  /**
-   * 获取用户的登录状态
-   */
-  const getLoginState = async () => {
-    const res = await sdk.getLoginState();
-   return res
-  };
+  console.log("sdk",sdk);
+  authingSdkClass.initSdk(sdk)
 
-  /**
-   * 以跳转方式打开 Authing 托管的登录页
-   */
-  const login = () => {
-    sdk.loginWithRedirect();
-  };
-  return {
-    login,getLoginState,sdk
-  }
+  // const getLoginState = async () => {
+  //   const res = await sdk.getLoginState();
+  //   if(!res)sdk.loginWithRedirect();
+  //   userInfoClass.saveUserInfo(res)
+  //  return res
+  // };
+  // return {
+  //   getLoginState,sdk
+  // }
+}
+/**
+ * 获取用户的登录状态
+ */
+export const getLoginState = async ()=>{
+    const { sdk } = authingSdk()
+    const userInfoClass = userInfo()
+    const res = await sdk?.getLoginState();
+    if(!res)sdk?.loginWithRedirect();
+    userInfoClass.saveUserInfo(res)
+  return res
 }

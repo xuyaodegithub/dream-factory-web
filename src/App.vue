@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import {onMounted,ref,onBeforeMount,nextTick,reactive,defineProps} from 'vue'
+import { onMounted, ref, onBeforeMount, nextTick, reactive, defineProps } from 'vue'
 import { RouterView } from 'vue-router'
 defineProps<{
   title?: string
   likes?: number
 }>()
-import {initAuthingWebUse,getLoginState} from '@/authingConfig'
+import { initAuthingWebUse, getLoginState } from '@/authingConfig'
 import { useRouter, useRoute } from 'vue-router'
 import { Authing } from '@authing/web';
-import { authingSdk,userInfo} from '@/stores'
+import { authingSdk, userInfo } from '@/stores'
 const router = useRouter()
 const route = useRoute()
 const state = reactive({
@@ -16,13 +16,13 @@ const state = reactive({
 });
 const a = ref(11)
 const loading = ref(false)
-onBeforeMount(()=>{
+onBeforeMount(() => {
 })
-onMounted(async ()=>{
+onMounted(async () => {
   await initAuthingWebUse(Authing)
   const authingSdkClass = authingSdk()
   const userInfoClass = userInfo()
-  console.log(authingSdkClass,'authingSdkClass',authingSdkClass.sdk)
+  console.log(authingSdkClass, 'authingSdkClass', authingSdkClass.sdk)
   if (authingSdkClass?.sdk?.isRedirectCallback()) {
     console.log("redirect");
 
@@ -31,7 +31,7 @@ onMounted(async ()=>{
      * 需要配合 handleRedirectCallback 方法，在回调端点处理 Authing 发送
      * 的授权码或 token，获取用户登录态
      */
-    authingSdkClass?.sdk?.handleRedirectCallback().then((res:any) => {
+    authingSdkClass?.sdk?.handleRedirectCallback().then((res: any) => {
       userInfoClass.saveUserInfo(res)
       router.replace("/");
     });
@@ -46,6 +46,13 @@ function add() {
 
 <template>
   <Navbar />
+  <div class="container">
+    <router-view></router-view>
+  </div>
 </template>
 
-<style scoped lang='less'></style>
+<style scoped lang='less'>
+.container {
+  margin-top: 64px;
+}
+</style>

@@ -1,7 +1,7 @@
 @import './base.css';
 
 #app {
-  padding: 12px;
+  /* padding: 12px; */
   font-weight: normal;
   height: 100%;
   overflow: hidden;

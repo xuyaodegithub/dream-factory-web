@@ -60,7 +60,7 @@ const goToBuyingCenter = () => {
 
 .logo {
   width: 40px;
-  margin-right: 80px;
+  margin-right: 58px;
   cursor: pointer;
   img {
     display: block;

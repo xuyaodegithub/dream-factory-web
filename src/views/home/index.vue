@@ -13,7 +13,7 @@ const imageList: any = ref([])
 
 async function initImages() {
   const hBase = 540//瀑布流高度基数
-  const clientW = window.innerWidth
+  const clientW = document.body.offsetWidth
   const list = Object.keys(modelList).map((item) => {
     return new Promise(resolve => {
       const img = new Image()
@@ -24,6 +24,7 @@ async function initImages() {
     })
   })
   const l = await Promise.all(list)
+  console.log(l[0], l[0].width, l[0].height, 'llll')
   let wArr: number = 0
   let imgArr: Array<any> = []
   l.forEach((item: any, idx: number) => {
@@ -31,11 +32,13 @@ async function initImages() {
     const scale = width / height
     const w = hBase * scale
     wArr = wArr + w + 24
-    imgArr.push({src, w, h: hBase})
+    imgArr.push({src, w, h: hBase, width, height})
     if (wArr > clientW) {
       const len = imgArr.length
       const realH = hBase * (clientW - 24 * len) / (wArr - 24 * len)
       imageList.value = [...imageList.value, ...imgArr.map((it: any) => {
+        const {width, height} = it
+        const scale = width / height
         return {
           ...it,
           w: realH * scale,
@@ -63,13 +66,13 @@ onMounted(async () => {
     <div class="page_image" v-for="(item,idx) in Object.keys(pageList)" :key="item">
       <a-image :src="pageList[item].default" :preview="false"></a-image>
       <div class="use-btn-cover" v-if="idx===0">
-        <a-button size="large">立即使用</a-button>
+        <a-button size="large" @click="router.push('/changingFace')">立即使用</a-button>
         <a-button size="large">合作咨询</a-button>
       </div>
     </div>
     <div class="exhibition-of-works">
       <div class="model_item" v-for="item in imageList" :key="item">
-        <a-image :src="item.src" :preview="false" :height="item.h"></a-image>
+        <a-image :src="item.src" :preview="false" :width="item.w" :height="item.h"></a-image>
       </div>
     </div>
   </main>

@@ -10,6 +10,7 @@ const route = useRoute()
 const pageList: any = import.meta.glob('../../assets/indexPage/index*.png', { eager: true })
 const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', { eager: true })
 const imageList: any = ref([])
+const oriImgsInfo:any = ref([])
 
 async function initImages() {
   const hBase = 540//瀑布流高度基数
@@ -24,6 +25,7 @@ async function initImages() {
     })
   })
   const l = await Promise.all(list)
+  oriImgsInfo.value=l
   console.log(l[0], l[0].width, l[0].height, 'llll')
   let wArr: number = 0
   let imgArr: Array<any> = []

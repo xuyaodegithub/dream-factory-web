@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import {useRouter, useRoute} from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import {
   StepBackwardOutlined
 } from '@ant-design/icons-vue';
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 
 const router = useRouter()
 const route = useRoute()
-const pageList: any = import.meta.glob('../../assets/indexPage/index*.png', {eager: true})
-const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', {eager: true})
+const pageList: any = import.meta.glob('../../assets/indexPage/index*.png', { eager: true })
+const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', { eager: true })
 const imageList: any = ref([])
 
 async function initImages() {
-  const hBase = 600//瀑布流高度基数
+  const hBase = 400//瀑布流高度基数
   const clientW = window.innerWidth
   const list = Object.keys(modelList).map((item) => {
     return new Promise(resolve => {
@@ -27,18 +27,18 @@ async function initImages() {
   let wArr: number = 0
   let imgArr: Array<any> = []
   l.forEach((item: any, idx: number) => {
-    const {width, height, src} = item
+    const { width, height, src } = item
     const scale = width / height
     const w = hBase * scale
     wArr = wArr + w + 24
-    imgArr.push({src, w, h: hBase})
+    imgArr.push({ src, w, h: hBase })
     if (wArr > clientW) {
       const realH = hBase * clientW / wArr
       imageList.value = [...imageList.value, ...imgArr.map((it: any) => {
         return {
           ...it,
           w: realH * scale,
-          h: realH -24
+          h: realH - 24
         }
       })]
       wArr = 0
@@ -59,9 +59,9 @@ onMounted(async () => {
 
 <template>
   <main class="content">
-    <div class="page_image" v-for="(item,idx) in Object.keys(pageList)" :key="item">
+    <div class="page_image" v-for="(item, idx) in Object.keys(pageList)" :key="item">
       <a-image :src="pageList[item].default" :preview="false"></a-image>
-      <div class="use-btn-cover" v-if="idx===0">
+      <div class="use-btn-cover" v-if="idx === 0">
         <a-button size="large">立即使用</a-button>
         <a-button size="large">合作咨询</a-button>
       </div>
@@ -121,7 +121,10 @@ onMounted(async () => {
       padding: 12px;
       box-sizing: border-box;
 
-      /deep/ .ant-image-img {
+      :deep(.ant-image-img) {
+        box-shadow: 0px 0px 2px #999;
+        border-radius: 10px;
+        overflow: hidden;
         display: block;
       }
     }

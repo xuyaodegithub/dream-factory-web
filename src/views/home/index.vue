@@ -3,15 +3,58 @@ import {useRouter, useRoute} from 'vue-router'
 import {
   StepBackwardOutlined
 } from '@ant-design/icons-vue';
+import {onMounted, ref} from "vue";
 
 const router = useRouter()
 const route = useRoute()
-const pageList = import.meta.glob('../../assets/indexPage/index*.png', {eager: true})
-const modelList = import.meta.glob('@/assets/indexPage/model*.png', {eager: true})
+const pageList: any = import.meta.glob('../../assets/indexPage/index*.png', {eager: true})
+const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', {eager: true})
+const imageList: any = ref([])
 
-function add() {
-  router.push('/')
+async function initImages() {
+  const hBase = 600//瀑布流高度基数
+  const clientW = window.innerWidth
+  const list = Object.keys(modelList).map((item) => {
+    return new Promise(resolve => {
+      const img = new Image()
+      img.onload = () => {
+        resolve(img)
+      }
+      img.src = modelList[item].default
+    })
+  })
+  const l = await Promise.all(list)
+  let wArr: number = 0
+  let imgArr: Array<any> = []
+  l.forEach((item: any, idx: number) => {
+    const {width, height, src} = item
+    const scale = width / height
+    const w = hBase * scale
+    wArr = wArr + w + 24
+    imgArr.push({src, w, h: hBase})
+    if (wArr > clientW) {
+      const realH = hBase * clientW / wArr
+      imageList.value = [...imageList.value, ...imgArr.map((it: any) => {
+        return {
+          ...it,
+          w: realH * scale,
+          h: realH -24
+        }
+      })]
+      wArr = 0
+      imgArr = []
+    }
+    if (idx === l.length - 1 && imgArr.length) {
+      imageList.value = [...imageList.value, ...imgArr]
+    }
+  })
 }
+
+onMounted(async () => {
+  await initImages()
+  console.log(imageList.value, '-=-=', imageList)
+})
+
 </script>
 
 <template>
@@ -24,8 +67,8 @@ function add() {
       </div>
     </div>
     <div class="exhibition-of-works">
-      <div class="model_item" v-for="item in Object.keys(modelList)" :key="item">
-        <a-image :src="modelList[item].default" :preview="false"/>
+      <div class="model_item" v-for="item in imageList" :key="item">
+        <a-image :src="item.src" :preview="false" :height="item.h"></a-image>
       </div>
     </div>
   </main>
@@ -72,16 +115,13 @@ function add() {
   .exhibition-of-works {
     display: flex;
     flex-wrap: wrap;
-    height: 550px;
+    padding: 24px 0;
 
     .model_item {
-      height: 100%;
-     /deep/ .ant-image{
-        height: 100%;
-      }
-      /deep/.ant-image-img {
-        height: 100%;
-        width: auto;
+      padding: 12px;
+      box-sizing: border-box;
+
+      /deep/ .ant-image-img {
         display: block;
       }
     }

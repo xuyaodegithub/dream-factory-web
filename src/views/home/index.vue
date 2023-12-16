@@ -32,11 +32,7 @@ async function initImages() {
     const scale = width / height
     const w = hBase * scale
     wArr = wArr + w + 24
-<<<<<<< HEAD
     imgArr.push({src, w, h: hBase, width, height})
-=======
-    imgArr.push({ src, w, h: hBase })
->>>>>>> d9b61202dbda95fc96c3296462e9865d50627fc6
     if (wArr > clientW) {
       const len = imgArr.length
       const realH = hBase * (clientW - 24 * len) / (wArr - 24 * len)

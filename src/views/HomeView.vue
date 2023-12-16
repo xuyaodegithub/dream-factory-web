@@ -11,8 +11,15 @@ function add() {
 </script>
 
 <template>
-  <main>
+  <main class="content">
     <a-button type="primary" @click="add">Display normal message</a-button>
     <step-backward-outlined />
+    <div style="height: 20000px;background-color: red;width: 100%"></div>
   </main>
 </template>
+<style lang="less" scoped>
+.content{
+  height: 100%;
+  overflow: auto;
+}
+</style>

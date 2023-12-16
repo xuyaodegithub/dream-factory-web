@@ -26,7 +26,7 @@ export const setCookie = (name:string, cvalue:any, clearDay = 3650) => {
 
 export const getCookie = (name:string) => {
   const cname = name + '=';
-  var carr = document.cookie.split(';');
+  const carr = document.cookie.split(';');
   for (let i = 0; i < carr.length; i++) {
     let cvalue = carr[i];
     while (cvalue.charAt(0) === ' ') cvalue = cvalue.substring(1);

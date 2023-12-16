@@ -1,6 +1,6 @@
 export const resizeImg = (l: Array<any>) => {
   const hBase = 540//瀑布流高度基数
-  const clientW = document.body.offsetWidth
+  const clientW = parseInt(String(document.body.offsetWidth - 10))//减去滚轮的宽度
   let wArr: number = 0
   let imgArr: Array<any> = []
   let resList:Array<any> = []

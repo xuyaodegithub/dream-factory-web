@@ -19,7 +19,7 @@ const router = createRouter({
     {
       path: '/buy',
       name: 'BuyingCenter',
-      component: () => import('@/views/BuyingCenter.vue')
+      component: () => import('@/views/BuyingCenter/index.vue')
     }
   ]
 })

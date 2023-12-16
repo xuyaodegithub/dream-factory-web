@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import {useRouter, useRoute} from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import {
   StepBackwardOutlined
 } from '@ant-design/icons-vue';
-import {onMounted, ref} from "vue";
+import { onMounted, ref } from "vue";
 
 const router = useRouter()
 const route = useRoute()
-const pageList: any = import.meta.glob('../../assets/indexPage/index*.png', {eager: true})
-const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', {eager: true})
+const pageList: any = import.meta.glob('../../assets/indexPage/index*.png', { eager: true })
+const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', { eager: true })
 const imageList: any = ref([])
 
 async function initImages() {
@@ -28,11 +28,15 @@ async function initImages() {
   let wArr: number = 0
   let imgArr: Array<any> = []
   l.forEach((item: any, idx: number) => {
-    const {width, height, src} = item
+    const { width, height, src } = item
     const scale = width / height
     const w = hBase * scale
     wArr = wArr + w + 24
+<<<<<<< HEAD
     imgArr.push({src, w, h: hBase, width, height})
+=======
+    imgArr.push({ src, w, h: hBase })
+>>>>>>> d9b61202dbda95fc96c3296462e9865d50627fc6
     if (wArr > clientW) {
       const len = imgArr.length
       const realH = hBase * (clientW - 24 * len) / (wArr - 24 * len)
@@ -63,7 +67,7 @@ onMounted(async () => {
 
 <template>
   <main class="content">
-    <div class="page_image" v-for="(item,idx) in Object.keys(pageList)" :key="item">
+    <div class="page_image" v-for="(item, idx) in Object.keys(pageList)" :key="item">
       <a-image :src="pageList[item].default" :preview="false"></a-image>
       <div class="use-btn-cover" v-if="idx===0">
         <a-button size="large" @click="router.push('/changingFace')">立即使用</a-button>

@@ -12,7 +12,7 @@ const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', {eager:
 const imageList: any = ref([])
 
 async function initImages() {
-  const hBase = 600//瀑布流高度基数
+  const hBase = 540//瀑布流高度基数
   const clientW = window.innerWidth
   const list = Object.keys(modelList).map((item) => {
     return new Promise(resolve => {
@@ -33,12 +33,13 @@ async function initImages() {
     wArr = wArr + w + 24
     imgArr.push({src, w, h: hBase})
     if (wArr > clientW) {
-      const realH = hBase * clientW / wArr
+      const len = imgArr.length
+      const realH = hBase * (clientW - 24 * len) / (wArr - 24 * len)
       imageList.value = [...imageList.value, ...imgArr.map((it: any) => {
         return {
           ...it,
           w: realH * scale,
-          h: realH -24
+          h: realH
         }
       })]
       wArr = 0
@@ -116,13 +117,24 @@ onMounted(async () => {
     display: flex;
     flex-wrap: wrap;
     padding: 24px 0;
+    margin-bottom: 40px;
 
     .model_item {
       padding: 12px;
       box-sizing: border-box;
+      border-radius: 10px;
+      overflow: hidden;
 
-      /deep/ .ant-image-img {
+      :deep(.ant-image-img) {
+        box-shadow: 0 0 2px #999999;
         display: block;
+        border-radius: 10px;
+        overflow: hidden;
+
+        &:hover {
+          transform: scale(1.5);
+          transition: all linear .3s;
+        }
       }
     }
   }

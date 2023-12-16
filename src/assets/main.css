@@ -5,8 +5,11 @@
   font-weight: normal;
   height: 100%;
   overflow: hidden;
+  background-color: #ffffff;
 }
-
+.ant-layout{
+  background-color: #ffffff;
+}
 a,
 .green {
   text-decoration: none;

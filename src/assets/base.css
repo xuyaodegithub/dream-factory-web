@@ -100,7 +100,7 @@ body {
 
 /* 滚动条上的滑块 */
 ::-webkit-scrollbar-thumb {
-  background-color: #888;
+  background-color: #999999;
   /* 滚动条滑块颜色 */
   border-radius: 5px;
   /* 滑块圆角 */

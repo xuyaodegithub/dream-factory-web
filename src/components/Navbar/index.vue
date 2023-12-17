@@ -22,7 +22,7 @@
             <a-menu>
               <a-menu-item v-for="menuItem in menuItems" :key="menuItem.key">
                 <component :is="menuItem.icon" />
-                <route-link :to="menuItem.path">{{ menuItem.label }}</route-link>
+                <router-link :to="menuItem.path">{{ menuItem.label }}</router-link>
               </a-menu-item>
             </a-menu>
           </template>
@@ -35,7 +35,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { UserOutlined, AccountBookOutlined, ExportOutlined } from '@ant-design/icons-vue'
-import { useRouter } from 'vue-router'
+import { useRouter,RouterLink } from 'vue-router'
 
 const current = ref<string[]>(['homePage'])
 const router = useRouter()

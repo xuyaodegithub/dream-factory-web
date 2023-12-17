@@ -3,18 +3,17 @@ import { useRouter, useRoute } from 'vue-router'
 import {
   StepBackwardOutlined
 } from '@ant-design/icons-vue';
-import { onMounted, ref } from "vue";
-
+import { onMounted, ref,onUnmounted } from "vue";
+import {resizeImg} from '@/config'
 const router = useRouter()
 const route = useRoute()
 const pageList: any = import.meta.glob('../../assets/indexPage/index*.png', { eager: true })
 const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', { eager: true })
 const imageList: any = ref([])
+const oriImgsInfo:any = ref([])
 
 async function initImages() {
-  const hBase = 540//瀑布流高度基数
-  const clientW = parseInt(String(document.body.offsetWidth - 10))//减去滚轮的宽度
-  const list = Object.keys(modelList).map((item) => {
+  const list = Object.keys(modelList).map((item:any) => {
     return new Promise(resolve => {
       const img = new Image()
       img.onload = () => {
@@ -24,38 +23,20 @@ async function initImages() {
     })
   })
   const l = await Promise.all(list)
-  let wArr: number = 0
-  let imgArr: Array<any> = []
-  l.forEach((item: any, idx: number) => {
-    const { width, height, src } = item
-    const scale = width / height
-    const w = hBase * scale
-    wArr = wArr + w + 24
-    imgArr.push({ src, w, h: hBase })
-    if (wArr > clientW) {
-      const len = imgArr.length
-      const realH = hBase * (clientW - 24 * len) / (wArr - 24 * len)
-      imageList.value = [...imageList.value, ...imgArr.map((it: any) => {
-        return {
-          ...it,
-          w: realH * scale,
-          h: realH
-        }
-      })]
-      wArr = 0
-      imgArr = []
-    }
-    if (idx === l.length - 1 && imgArr.length) {
-      imageList.value = [...imageList.value, ...imgArr]
-    }
-  })
+  oriImgsInfo.value=l
+  imageList.value = resizeImg(oriImgsInfo.value)
 }
-
+function resize(){
+  imageList.value = resizeImg(oriImgsInfo.value)
+}
 onMounted(async () => {
   await initImages()
+  window.addEventListener('resize',resize)
   console.log(imageList.value, '-=-=', imageList)
 })
-
+onUnmounted(()=>{
+  window.removeEventListener('resize',resize)
+})
 </script>
 
 <template>
@@ -63,7 +44,7 @@ onMounted(async () => {
     <div class="page_image" v-for="(item, idx) in Object.keys(pageList)" :key="item">
       <a-image :src="pageList[item].default" :preview="false"></a-image>
       <div class="use-btn-cover" v-if="idx === 0">
-        <a-button size="large">立即使用</a-button>
+        <a-button size="large" @click="router.push('/changingFace')">立即使用</a-button>
         <a-button size="large">合作咨询</a-button>
       </div>
     </div>

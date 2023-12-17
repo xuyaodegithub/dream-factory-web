@@ -4,26 +4,33 @@
             <div class="card-header">
                 <div class="subscription-name">{{ cardContent.subscriptionName }}</div>
                 <div class="subscription-price">
-                    <span>{{ cardContent.subscriptionPrice }}/月起</span>
+                    {{ cardContent.subscriptionPrice }}/月起
                 </div>
             </div>
         </template>
         <div class="subscription-button">
-            <a-button type="primary" @click="subscribe">立即订阅</a-button>
+            <a-button type="primary" @click="showModal">立即订阅</a-button>
         </div>
         <div class="subscription-desc">
-            <h3>包含</h3>
-            <div v-for="item in cardContent.subscriptionDesc" :key="item.index">
+            <div class="desc-title">包含</div>
+            <div v-for="item in cardContent.subscriptionDesc" :key="item.index" class="desc-info">
                 <CheckCircleOutlined />
                 {{ item }}
             </div>
         </div>
     </a-card>
+    <a-modal v-model:open="open" title="算力充值" @ok="handleOk">
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+    </a-modal>
 </template>
 
 <script setup lang="ts">
 import { reactive, defineProps } from 'vue';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
+import { ref } from 'vue';
+
 interface CardContent {
     subscriptionId: number;
     subscriptionPrice: string;
@@ -35,10 +42,14 @@ const props = defineProps<{
     cardContent?: CardContent
 }>();
 
+const open = ref<boolean>(false);
 
-const subscribe = () => {
-    // TODO: Implement subscription logic
-    console.log('Subscribe clicked');
+const showModal = () => {
+    open.value = true;
+};
+const handleOk = (e: MouseEvent) => {
+    console.log(e);
+    open.value = false;
 };
 </script>
 
@@ -60,6 +71,7 @@ const subscribe = () => {
 
     .subscription-name {
         margin-top: 15px;
+        font-size: 16px;
     }
 
     .subscription-price {
@@ -78,6 +90,16 @@ const subscribe = () => {
 
     .subscription-desc {
         margin-top: 15px;
+
+        .desc-title {
+            font-size: 16px;
+            line-height: 32px;
+        }
+
+        .desc-info {
+            font-size: 14px;
+            line-height: 26px;
+        }
     }
 
     &:hover {

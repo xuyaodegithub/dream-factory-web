@@ -2,35 +2,19 @@
 import {
   onMounted,
   ref,
-  onBeforeMount,
-  nextTick,
-  computed,
-  watch,
   reactive,
-  defineProps
 } from 'vue'
 import { RouterView } from 'vue-router'
 import NavBar from '@/components/NavBar/index.vue'
-const props = defineProps<{
-  title?: string
-  likes?: number
-}>()
 import { initAuthingWebUse, getLoginState } from '@/authingConfig'
 import { useRouter, useRoute } from 'vue-router'
 import { Authing } from '@authing/web'
 import { authingSdk, userInfo } from '@/stores'
 const router = useRouter()
-const route = useRoute()
 const state = reactive({
   loginState: null
 })
-const a = ref(11)
-const b = ref(22)
 const loading = ref(false)
-const c = computed(() => a.value + b.value)
-onBeforeMount(() => {
-  console.log(props, '-=-=', c)
-})
 onMounted(async () => {
   await initAuthingWebUse(Authing)
   const authingSdkClass = authingSdk()

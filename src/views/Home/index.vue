@@ -13,7 +13,7 @@ const imageList: any = ref([])
 const oriImgsInfo:any = ref([])
 
 async function initImages() {
-  const list = Object.keys(modelList).map((item) => {
+  const list = Object.keys(modelList).map((item:any) => {
     return new Promise(resolve => {
       const img = new Image()
       img.onload = () => {

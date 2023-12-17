@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-const modelList: any = import.meta.glob('@/assets/moveModels/model*.webp', {eager: true})
+const modelList: any = import.meta.glob('@/assets/moveModels/model*.png', {eager: true})
 const imgList = Object.keys(modelList).map((item: any) => modelList[item].default)
 
 const moveModels = [
@@ -42,7 +42,11 @@ const moveModels = [
     .img_list{
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      //justify-content: space-between;
+      flex-wrap:wrap;
+      .img_item{
+        margin: 0 5px 5px 0;
+      }
       :deep(.ant-image){
         cursor: pointer;
       }

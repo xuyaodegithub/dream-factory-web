@@ -63,7 +63,7 @@ const menuItems = ref<MenuItem[]>([
 
 const navItems = ref<MenuItem[]>([
   { key: 'homePage', label: '首页', path: '/' },
-  { key: 'modelReplace', label: '模特替换', path: '/' },
+  { key: 'modelReplace', label: '模特替换', path: '/changingFace' },
 ])
 
 </script>

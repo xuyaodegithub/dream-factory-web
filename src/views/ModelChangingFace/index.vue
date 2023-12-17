@@ -58,7 +58,7 @@
         <div class="model_example">
           <a-image :class="{active:modelActive===idx}" @click.stop="selectModel(idx)"
                    v-for="(item,idx) in imgList.slice(0,imgList.length-1)" :key="idx"
-                   :src="item" :preview="false" :width="90" :height="70"></a-image>
+                   :src="item" :preview="false" :width="90"></a-image>
           <a-popover placement="rightBottom">
             <template #title>
               <div class="concat_us">更多模特<span class="concat_us_dec">（想要专属模特?请联系商务定制）,<a-button
@@ -88,11 +88,11 @@
       </div>
       <div class="confirm_box">
         <span class="consumption" v-if="!!consumption">本次消耗：{{ consumption }} 算力</span>
-        <a-button type="primary" :disabled="!!allSuccess" @click="confirmTask">点击生成</a-button>
+        <a-button type="primary" :disabled="!allSuccess" @click="confirmTask">点击生成</a-button>
       </div>
     </div>
     <div class="right_perview">
-      <RightContent :resultInfo="resultInfo"/>
+      <RightContent ref="rightContent" :resultInfo="resultInfo"/>
     </div>
   </main>
 </template>
@@ -112,8 +112,8 @@ import {message} from 'ant-design-vue';
 import RightContent from './components/RightContent.vue'
 import MoveModels from './components/MoveModels.vue'
 
-const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', {eager: true})
-const imgList = Object.keys(modelList).map((item: any) => modelList[item].default)
+const modelList: any = import.meta.glob('@/assets/carouse/carouse*.png', {eager: true})
+const imgList = Object.keys(modelList).map((item: any) => modelList[item].default).slice(0, 10)
 const fileList: any = ref([]);
 const timer: any = ref(null)
 const modelActive = ref<number>(0);
@@ -121,6 +121,7 @@ const carousel: any = ref(null);
 const pictureNumer = ref(4);
 const checkedSmile = ref(false);
 const resultInfo = reactive({list: [], number: pictureNumer.value});
+const rightContent: any = ref(null)
 //是否全部上传成功
 const allSuccess = computed(() => {
   const {value} = fileList
@@ -176,7 +177,7 @@ function selectModel(idx: number) {
 }
 
 function confirmTask() {
-  resultInfo.list = fileList.value
+  resultInfo.list = JSON.parse(JSON.stringify(fileList.value))
   resultInfo.number = pictureNumer.value
 }
 
@@ -344,9 +345,9 @@ function startPargress() {
         }
 
         &.last {
-          height: 70px;
+          height: 90px;
           width: 90px;
-          line-height: 70px;
+          line-height: 90px;
           text-align: center;
           color: #4d7bea;
           border: 2px solid #eeeeee;

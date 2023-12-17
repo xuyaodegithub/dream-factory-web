@@ -14,9 +14,9 @@
         </div>
         <div class="result_list_box" v-for="item in allList" :key="item.uid">
           <div class="result_list_box_item" v-for="n in resNum" :key="n">
-            <CheckCircleOutlined v-if="item.uploadEnd" :class="{checked:checkedImg.includes(item.uid)}"/>
-            <a-image src="/src/assets/indexPage/model1.png" @click="checkThis(item)" :preview="false" :width="200"
-                     :height="200" v-if="item.uploadEnd"></a-image>
+            <CheckCircleOutlined v-if="item.endFace" :class="{checked:checkedImg.includes(item.uid)}"/>
+            <a-image src="/src/assets/carouse/carouse1.png" @click="checkThis(item)" :preview="false" :width="200"
+                     :height="200" v-if="item.endFace"></a-image>
             <div class="skeleton_img" v-else>
               <a-skeleton-image class="placeholder_img"/>
               <a-skeleton-button active size="small" class="placeholder_button"/>
@@ -36,14 +36,14 @@
         wrap-class-name="full-modal"
         :footer="null"
     >
-      <a-image src="/src/assets/indexPage/model1.png" :preview="false"></a-image>
-      <a-image src="/src/assets/indexPage/model1.png" :preview="false"></a-image>
+      <a-image src="/src/assets/moveModels/models1.png" :preview="false"></a-image>
+      <a-image src="/src/assets/moveModels/models2.png" :preview="false"></a-image>
     </a-modal>
   </main>
 </template>
 
 <script setup lang="ts">
-import {defineProps, computed, onMounted, ref} from "vue";
+import {defineProps, computed, onMounted, ref,watch} from "vue";
 import {formatDate} from '@/config/formatDate'
 import {
   EyeOutlined, CheckCircleOutlined
@@ -57,12 +57,38 @@ const props = defineProps({
 })
 const checkedImg: any = ref([])
 const open: any = ref(false)
+const resList: any = ref([])
+const num = ref<number>(4)
 const isFirstIn = computed(() => !props.resultInfo?.list.length)
 const allList = computed(() => {
-  return props.resultInfo?.list || []
+  return resList.value || []
 })
 const resNum = computed(() => {
-  return props.resultInfo?.number || 4
+  return num.value || 4
+})
+watch(props.resultInfo,()=>{
+  initUploadImg()
+},{deep:true})
+function initUploadImg() {
+  const {list, number} = props.resultInfo
+  const l = [...list].map((item:any)=>{
+    const it:any = resList.value.find((i:any)=>i.uid === item.uid)
+    return {
+      ...item,
+      endFace:it?.endFace || false
+    }
+  })
+  resList.value=[...l]
+  num.value = number
+
+}
+onMounted(()=>{
+  setInterval(() => {
+    const idx = resList.value.findIndex((i: any) => !i.endFace)
+    if (idx > -1) {
+      resList.value[idx].endFace = true
+    }
+  }, 2000)
 })
 
 function checkThis(item: any) {
@@ -231,30 +257,35 @@ function perviewCurrent(item: any) {
 }
 </style>
 <style lang="less">
-.full-modal .ant-modal{
-  top: 0!important;
+.full-modal .ant-modal {
+  top: 0 !important;
   height: 100%;
   padding: 40px;
-  .ant-modal-content{
-    background-color: rgba(0,0,0,0);
+
+  .ant-modal-content {
+    background-color: rgba(0, 0, 0, 0);
     box-shadow: none;
     height: 100%;
     padding: 0;
-    .ant-modal-close .ant-modal-close-x{
+
+    .ant-modal-close .ant-modal-close-x {
       font-size: 24px;
       color: #ffffff;
       margin-left: 100px;
     }
-    .ant-modal-body{
+
+    .ant-modal-body {
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100%;
       overflow: auto;
       width: 100%;
-      .ant-image{
+
+      .ant-image {
         width: 50%;
-        &:first-child{
+
+        &:first-child {
           margin-right: 20px;
         }
       }

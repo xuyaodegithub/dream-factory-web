@@ -32,7 +32,7 @@
     </div>
     <a-modal
         v-model:open="open"
-        width="100%"
+        width="80%"
         wrap-class-name="full-modal"
         :footer="null"
     >
@@ -239,10 +239,11 @@ function perviewCurrent(item: any) {
     background-color: rgba(0,0,0,0);
     box-shadow: none;
     height: 100%;
-    width: auto;
+    padding: 0;
     .ant-modal-close .ant-modal-close-x{
       font-size: 24px;
       color: #ffffff;
+      margin-left: 100px;
     }
     .ant-modal-body{
       display: flex;
@@ -250,9 +251,12 @@ function perviewCurrent(item: any) {
       justify-content: center;
       height: 100%;
       overflow: auto;
+      width: 100%;
       .ant-image{
-        width: 40%;
-        padding: 20px;
+        width: 50%;
+        &:first-child{
+          margin-right: 20px;
+        }
       }
     }
   }

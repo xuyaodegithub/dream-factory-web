@@ -92,7 +92,7 @@
       </div>
     </div>
     <div class="right_perview">
-      <RightContent :resultInfo="resultInfo" :loading="isUploading"/>
+      <RightContent :resultInfo="resultInfo"/>
     </div>
   </main>
 </template>
@@ -138,12 +138,12 @@ const needDis: any = computed(() => {
   const len = value.length
   return (len > 0 && progress.value < 100) || len >= maxLen
 })
-//下载中，右侧需要loading
-const isUploading = computed(() => {
-  const {value} = fileList
-
-  return !!value.length && value.some((i: any) => !i.uploadEnd)
-})
+// //上传中，右侧需要loading
+// const isUploading = computed(() => {
+//   const {value} = fileList
+//
+//   return !!value.length && value.some((i: any) => !i.uploadEnd)
+// })
 //算力消耗
 const consumption = computed(() => {
   const len = fileList.value.length

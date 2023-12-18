@@ -15,7 +15,7 @@
 import OptionCardVue from "./components/OptionCard.vue";
 import { ref } from "vue";
 
-const subscriptionList = ref<CardContent[]>([
+const subscriptionList:any = ref([
     {
         subscriptionId: 1,
         subscriptionPrice: '480',

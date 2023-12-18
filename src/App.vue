@@ -39,7 +39,6 @@ onMounted(async () => {
 
 function add() {
   console.log(23)
-  a.value++
 }
 </script>
 

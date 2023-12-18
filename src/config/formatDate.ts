@@ -1,9 +1,13 @@
+// @ts-nocheck
 /**
  * Created by shisan 20231217
  */
+interface Date {
+  format: any;
+}
 
-Date.prototype.format = function(format:any) {
-  const o = {
+Date.prototype.format = function(format: any) {
+  const o: any = {
     'M+': this.getMonth() + 1,
 
     // month
@@ -22,7 +26,7 @@ Date.prototype.format = function(format:any) {
     'q+': Math.floor((this.getMonth() + 3) / 3),
 
     // quarter
-    S: this.getMilliseconds(), // millisecond
+    S: this.getMilliseconds() // millisecond
   }
 
   const week = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
@@ -46,9 +50,9 @@ Date.prototype.format = function(format:any) {
  * eg:format="yyyy-MM-dd hh:mm:ss";
  * eg:format="yyyy-MM-dd w";
  */
-export function formatDate(format:any, pattern?:any) {
+export function formatDate(format: any, pattern?: any) {
   if (format) {
-    const Format = format instanceof Date ? format : new Date(typeof format == 'number' ? format : format.replace(/-/g, '/')),
+    const Format: any = format instanceof Date ? format : new Date(typeof format == 'number' ? format : format.replace(/-/g, '/')),
       Pattern = pattern || 'yyyy-MM-dd hh:mm:ss'
 
     return Format.format(Pattern)
@@ -56,18 +60,18 @@ export function formatDate(format:any, pattern?:any) {
 }
 
 // yyyy-MM-dd hh:mm:ss 当前时间
-export function formatNow(pattern:any) {
-  const Pattern = pattern || 'yyyy-MM-dd hh:mm:ss'
+export function formatNow(pattern: any) {
+  const Pattern:string = pattern || 'yyyy-MM-dd hh:mm:ss'
 
-  return new Date().format(Pattern)
+  return formatDate(Date.now(),Pattern)
 }
 
 // Sat Sep 09 2017 15:16:01 GMT+0800 (CST)
-export function DateFormat(format:any) {
+export function DateFormat(format: any) {
   return format ? (format instanceof Date ? format : new Date(typeof format == 'number' ? format : format.replace(/-/g, '/'))) : new Date()
 }
 
 // 1504941315784
-export function formatTime(format:any) {
+export function formatTime(format: any) {
   return format ? DateFormat(format).valueOf() : +new Date()
 }

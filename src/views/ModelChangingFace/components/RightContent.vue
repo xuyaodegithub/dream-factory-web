@@ -15,14 +15,14 @@
         <div class="result_list_box" v-for="item in allList" :key="item.uid">
           <div class="result_list_box_item" v-for="n in resNum" :key="n">
             <CheckCircleOutlined v-if="item.endFace" :class="{checked:checkedImg.includes(item.uid)}"/>
-            <a-image src="/src/assets/carouse/carouse1.png" @click="checkThis(item)" :preview="false" :width="200"
+            <a-image :src="mapImg" @click="checkThis(item)" :preview="false" :width="200"
                      :height="200" v-if="item.endFace"></a-image>
             <div class="skeleton_img" v-else>
               <a-skeleton-image class="placeholder_img"/>
               <a-skeleton-button active size="small" class="placeholder_button"/>
               <div class="placeholder_text">图片生成中，请稍后...</div>
             </div>
-            <div class="previewMask" @click="perviewCurrent(item)">
+            <div class="previewMask" @click.stop="perviewCurrent(item)">
               <EyeOutlined/>
               预览
             </div>
@@ -36,8 +36,8 @@
         wrap-class-name="full-modal"
         :footer="null"
     >
-      <a-image src="/src/assets/moveModels/models1.png" :preview="false"></a-image>
-      <a-image src="/src/assets/moveModels/models2.png" :preview="false"></a-image>
+      <a-image :src="mapImg" :preview="false"></a-image>
+      <a-image :src="mapImg" :preview="false"></a-image>
     </a-modal>
   </main>
 </template>
@@ -48,7 +48,7 @@ import {formatDate} from '@/config/formatDate'
 import {
   EyeOutlined, CheckCircleOutlined
 } from '@ant-design/icons-vue';
-
+const mapImg:any = new URL('@/assets/carouse/carouse1.png',import.meta.url).href
 const props = defineProps({
   resultInfo: {
     type: Object,

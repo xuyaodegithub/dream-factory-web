@@ -29,7 +29,6 @@ declare module 'vue' {
     ASpace: typeof import('ant-design-vue/es')['Space']
     ASwitch: typeof import('ant-design-vue/es')['Switch']
     AUploadDragger: typeof import('ant-design-vue/es')['UploadDragger']
-    Navbar: typeof import('./src/components/Navbar/index.vue')['default']
     NavBar: typeof import('./src/components/NavBar/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

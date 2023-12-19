@@ -28,8 +28,11 @@ declare module 'vue' {
     ASkeletonImage: typeof import('ant-design-vue/es')['SkeletonImage']
     ASpace: typeof import('ant-design-vue/es')['Space']
     ASwitch: typeof import('ant-design-vue/es')['Switch']
+    ATypographyTitle: typeof import('ant-design-vue/es')['TypographyTitle']
     AUploadDragger: typeof import('ant-design-vue/es')['UploadDragger']
     NavBar: typeof import('./src/components/NavBar/index.vue')['default']
+    PackageCard: typeof import('./src/components/RechargeDialog/PackageCard.vue')['default']
+    RechargeDialog: typeof import('./src/components/RechargeDialog/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

@@ -31,8 +31,9 @@ declare module 'vue' {
     ASwitch: typeof import('ant-design-vue/es')['Switch']
     ATable: typeof import('ant-design-vue/es')['Table']
     AUploadDragger: typeof import('ant-design-vue/es')['UploadDragger']
-    Navbar: typeof import('./src/components/Navbar/index.vue')['default']
     NavBar: typeof import('./src/components/NavBar/index.vue')['default']
+    PackageCard: typeof import('./src/components/RechargeDialog/PackageCard.vue')['default']
+    RechargeDialog: typeof import('./src/components/RechargeDialog/index.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

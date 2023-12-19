@@ -6,12 +6,9 @@
         <template v-if="column.key === 'action'">
         <span>
           <a>Invite 一 {{ record.name }}</a>
-          <a-divider type='vertical' />
           <a>Delete</a>
-          <a-divider type='vertical' />
           <a class='ant-dropdown-link'>
             More actions
-            <down-outlined />
           </a>
         </span>
         </template>
@@ -38,6 +35,9 @@ const columns = [
     title: '住址',
     dataIndex: 'address',
     key: 'address'
+  },{
+    title: 'action',
+    key: 'action',
   }
 ]
 const dataSource: any = ref([

@@ -19,17 +19,14 @@
             </div>
         </div>
     </a-card>
-    <a-modal v-model:open="open" title="算力充值" @ok="handleOk">
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-    </a-modal>
+    <RechargeDialog :open="openRechargeDialog" :close='()=>openRechargeDialog=false'/>
 </template>
 
 <script setup lang="ts">
-import { reactive, defineProps } from 'vue';
+import { reactive, defineProps, onMounted } from 'vue';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { ref } from 'vue';
+import RechargeDialog from '@/components/RechargeDialog/index.vue';
 
 interface CardContent {
     subscriptionId: number;
@@ -37,20 +34,23 @@ interface CardContent {
     subscriptionName: string;
     subscriptionDesc: any[];
 }
-
-const props = defineProps<{
-    cardContent: CardContent
-}>();
-
-const open = ref<boolean>(false);
+const RechargeModal: any = ref(null)
+const props = defineProps({
+    cardContent:Object
+});
+//打开充值弹窗
+const openRechargeDialog = ref<boolean>(false);
 
 const showModal = () => {
-    open.value = true;
+  console.log(openRechargeDialog.value, 'RechargeModal.value.dialogOpen.value ')
+
+  openRechargeDialog.value= true
 };
-const handleOk = (e: MouseEvent) => {
-    console.log(e);
-    open.value = false;
-};
+
+const handleRechargeDialogUpdate = (value: boolean) => {
+    openRechargeDialog.value = value;
+}
+
 </script>
 
 <style  lang="less" scoped>
@@ -105,11 +105,14 @@ const handleOk = (e: MouseEvent) => {
     &:hover {
         border-color: @hover-bg-color;
         border-radius: 10px;
+        transition: border-color 0.5s ease, border-radius 0.5s ease;
 
         :deep(.ant-card-head) {
             background-color: @hover-bg-color;
             color: #ffffff;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
     }
+
 }
 </style>

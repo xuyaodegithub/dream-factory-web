@@ -304,7 +304,7 @@ function perviewCurrent(item: any) {
       }
 
       .ant-image,.sec-img {
-        width: 50%;
+        width: 48%;
 
         &:nth-child(2) {
           margin-right: 20px;

@@ -820,10 +820,10 @@ ansi-styles@^6.2.1:
   resolved "https://registry.npmmirror.com/ansi-styles/-/ansi-styles-6.2.1.tgz"
   integrity sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==
 
-ant-design-vue@^4.0.7:
-  version "4.0.7"
-  resolved "https://registry.npmmirror.com/ant-design-vue/-/ant-design-vue-4.0.7.tgz"
-  integrity sha512-oHTtc1GZkfENZTkt2aDvjaD4yoRsowYvCOmxA6+5AGqm5uz/datdJOXsq9nokIhC+vrAMhk6JQVFZ2hh7eU6Pw==
+ant-design-vue@4.0.6:
+  version "4.0.6"
+  resolved "https://registry.npmmirror.com/ant-design-vue/-/ant-design-vue-4.0.6.tgz#308ded25f4ee7e4582dccad4594aee4a000abe2d"
+  integrity sha512-6kh3b8Ito9SAbOKTW0wyfcCnd859uhQQlttjo8RjMj6YjLK52yNO2TdgYRwed06scUm5RwEnQ2JKMxYYoeG1MA==
   dependencies:
     "@ant-design/colors" "^6.0.0"
     "@ant-design/icons-vue" "^7.0.0"

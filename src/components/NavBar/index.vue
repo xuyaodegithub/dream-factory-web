@@ -57,7 +57,7 @@ interface MenuItem {
 
 const menuItems = ref<MenuItem[]>([
   { key: '1', icon: UserOutlined, label: '4788778935', path: 'javascript:;' },
-  { key: '2', icon: AccountBookOutlined, label: '我的订单', path: 'javascript:;' },
+  { key: '2', icon: AccountBookOutlined, label: '我的订单', path: '/myOrder' },
   { key: '3', icon: ExportOutlined, label: '退出登录', path: 'javascript:;' },
 ]);
 

@@ -13,7 +13,7 @@
         </div>
         <div class="subscription-desc">
             <div class="desc-title">包含</div>
-            <div v-for="item in cardContent.subscriptionDesc" :key="item.index" class="desc-info">
+            <div v-for="item in cardContent?.subscriptionDesc" :key="item.index" class="desc-info">
                 <CheckCircleOutlined />
                 {{ item }}
             </div>
@@ -35,11 +35,11 @@ interface CardContent {
     subscriptionId: number;
     subscriptionPrice: string;
     subscriptionName: string;
-    subscriptionDesc: string[];
+    subscriptionDesc: any[];
 }
 
 const props = defineProps<{
-    cardContent?: CardContent
+    cardContent: CardContent
 }>();
 
 const open = ref<boolean>(false);

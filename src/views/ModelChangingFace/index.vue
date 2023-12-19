@@ -43,7 +43,7 @@
         </div>
         <div class="select_model">
           <div class="title_dec" @click="startPargress">选择模特</div>
-          <a-carousel arrows :dots="false" ref="carousel" :afterChange="(idx)=>modelActive=idx">
+          <a-carousel arrows :dots="false" ref="carousel" :afterChange="(idx:number)=>modelActive=idx">
             <template #prevArrow>
               <LeftCircleOutlined/>
             </template>

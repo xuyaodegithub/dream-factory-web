@@ -7,7 +7,7 @@ import { onMounted, ref,onUnmounted } from "vue";
 import {resizeImg} from '@/config'
 const router = useRouter()
 const route = useRoute()
-const pageList: any = import.meta.glob('../../assets/indexPage/index*.png', { eager: true })
+const pageList: any = import.meta.glob('@/assets/indexPage/index*.png', { eager: true })
 const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', { eager: true })
 const imageList: any = ref([])
 const oriImgsInfo:any = ref([])

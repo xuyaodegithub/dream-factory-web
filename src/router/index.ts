@@ -25,6 +25,12 @@ export const routes: any = [
     name: '我的订单',
     component: () => import('@/views/MyOrder/index.vue'),
     hidden:true
+  },
+  {
+    path: '/historyChange',
+    name: '历史记录',
+    component: () => import('@/views/HistoryChange/index.vue'),
+    hidden:true
   }
 ]
 const router = createRouter({

@@ -1,105 +1,105 @@
 <template>
-  <main class="ModelChangingFace">
-    <div class="left_upload">
-      <div class="opera_content">
-        <div class="upload_box">
+  <main class='ModelChangingFace'>
+    <div class='left_upload'>
+      <div class='opera_content'>
+        <div class='upload_box'>
           <a-upload-dragger
-              v-model:fileList="fileList"
-              name="file"
-              :maxCount="maxLen"
-              :multiple="true"
-              action="/"
-              :disabled="needDis"
-              @change="imgUpload"
-              :customRequest="()=>{}"
-              :accept="acceptFileList"
-              :showUploadList="false"
-              :withCredentials="true"
+            v-model:fileList='fileList'
+            name='file'
+            :maxCount='maxLen'
+            :multiple='true'
+            action='/'
+            :disabled='needDis'
+            @change='imgUpload'
+            :customRequest='()=>{}'
+            :accept='acceptFileList'
+            :showUploadList='false'
+            :withCredentials='true'
           >
-            <div class="ant-upload-drag-icon">
-              <UploadOutlined/>
+            <div class='ant-upload-drag-icon'>
+              <UploadOutlined />
             </div>
-            <div class="ant-upload-text">上传图片或将图片拖拽到此处</div>
-            <div class="ant-upload-hint" v-if="!fileList.length">
+            <div class='ant-upload-text'>上传图片或将图片拖拽到此处</div>
+            <div class='ant-upload-hint' v-if='!fileList.length'>
               格式：jpg,png,jpeg,图片大小不超过50M,最多可以上传20张图片<br>
               上传的图片请不要遮挡模特的脸部，应正视镜头，侧脸和低头角度不宜过大
             </div>
-            <div class="file_list" v-else @click.stop="">
-              <div class="upload_befor" v-if="!allSuccess">
-                <a-progress :strokeWidth="8" :percent="progress" :showInfo="false"/>
-                <span style="color: #333333">{{ progress }}%</span>
-                <p class="loading">文件正在上传中，请稍后...</p>
+            <div class='file_list' v-else @click.stop=''>
+              <div class='upload_befor' v-if='!allSuccess'>
+                <a-progress :strokeWidth='8' :percent='progress' :showInfo='false' />
+                <span style='color: #333333'>{{ progress }}%</span>
+                <p class='loading'>文件正在上传中，请稍后...</p>
               </div>
-              <div class="upload_success" v-else>
-                <PictureOutlined/>
-                <div class="center_text">
-                  <CheckCircleOutlined/>
+              <div class='upload_success' v-else>
+                <PictureOutlined />
+                <div class='center_text'>
+                  <CheckCircleOutlined />
                   成功上传 <span>{{ fileList.length }}</span> 张图片
                 </div>
-                <DeleteOutlined @click.stop="deleteFiles"/>
+                <DeleteOutlined @click.stop='deleteFiles' />
               </div>
             </div>
           </a-upload-dragger>
         </div>
-        <div class="select_model">
-          <div class="title_dec" @click="startPargress">选择模特</div>
-          <a-carousel arrows :dots="false" ref="carousel" :afterChange="(idx:number)=>modelActive=idx">
+        <div class='select_model'>
+          <div class='title_dec' @click='startPargress'>选择模特</div>
+          <a-carousel arrows :dots='false' ref='carousel' :afterChange='(idx:number)=>modelActive=idx'>
             <template #prevArrow>
-              <LeftCircleOutlined/>
+              <LeftCircleOutlined />
             </template>
             <template #nextArrow>
-              <RightCircleOutlined/>
+              <RightCircleOutlined />
             </template>
-            <div v-for="(item,idx) in imgList" :key="idx">
-              <a-image :src="item" :preview="false" :width="300" :height="300"></a-image>
+            <div v-for='(item,idx) in imgList' :key='idx'>
+              <a-image :src='item' :preview='false' :width='300' :height='300'></a-image>
             </div>
           </a-carousel>
         </div>
-        <div class="model_example">
-          <a-image :class="{active:modelActive===idx}" @click.stop="selectModel(idx)"
-                   v-for="(item,idx) in imgList.slice(0,imgList.length-1)" :key="idx"
-                   :src="item" :preview="false" :width="90"></a-image>
-          <a-popover placement="rightBottom">
+        <div class='model_example'>
+          <a-image :class='{active:modelActive===idx}' @click.stop='selectModel(idx)'
+                   v-for='(item,idx) in imgList.slice(0,imgList.length-1)' :key='idx'
+                   :src='item' :preview='false' :width='90'></a-image>
+          <a-popover placement='rightBottom'>
             <template #title>
-              <div class="concat_us">更多模特<span class="concat_us_dec">（想要专属模特?请联系商务定制）,<a-button
-                  type="link" size="small">立即联系</a-button></span>
+              <div class='concat_us'>更多模特<span class='concat_us_dec'>（想要专属模特?请联系商务定制）,<a-button
+                type='link' size='small'>立即联系</a-button></span>
               </div>
             </template>
             <template #content>
-              <MoveModels/>
+              <MoveModels :changeFirstImg='changeFirstImg' />
             </template>
-            <div class="ant-image last">查看更多</div>
+            <div class='ant-image last'>查看更多</div>
           </a-popover>
         </div>
-        <div class="select_number">
+        <div class='select_number'>
           <label>单张图片换脸数量</label>
           <a-select
-              ref="select"
-              v-model:value="pictureNumer"
-              style="width: 120px">
-            <a-select-option v-for="item in selectNumberList" :value="item" :key="item">{{ item }}</a-select-option>
+            ref='select'
+            v-model:value='pictureNumer'
+            style='width: 120px'>
+            <a-select-option v-for='item in selectNumberList' :value='item' :key='item'>{{ item }}</a-select-option>
           </a-select>
           张
         </div>
-        <div class="select_number">
+        <div class='select_number'>
           <label>微笑推荐</label>
-          <a-switch v-model:checked="checkedSmile"/>
+          <a-switch v-model:checked='checkedSmile' />
         </div>
       </div>
-      <div class="confirm_box">
-        <span class="consumption" v-if="!!consumption">本次消耗：{{ consumption }} 算力</span>
-        <a-button type="primary" :disabled="!allSuccess" @click="confirmTask">点击生成</a-button>
+      <div class='confirm_box'>
+        <span class='consumption' v-if='!!consumption'>本次消耗：{{ consumption }} 算力</span>
+        <a-button type='primary' :disabled='!allSuccess' @click='confirmTask'>点击生成</a-button>
       </div>
     </div>
-    <div class="right_perview">
-      <RightContent ref="rightContent" :resultInfo="resultInfo"/>
+    <div class='right_perview'>
+      <RightContent ref='rightContent' :resultInfo='resultInfo' />
     </div>
   </main>
 </template>
 
-<script setup lang="ts">
-import {ref, computed, reactive} from 'vue';
-import {acceptFileList, customRequest, maxLen, selectNumberList} from '@/config/file'
+<script setup lang='ts'>
+import { ref, computed, reactive } from 'vue'
+import { acceptFileList, customRequest, maxLen, selectNumberList } from '@/config/file'
 import {
   UploadOutlined,
   PictureOutlined,
@@ -107,44 +107,38 @@ import {
   DeleteOutlined,
   LeftCircleOutlined,
   RightCircleOutlined
-} from '@ant-design/icons-vue';
-import {message} from 'ant-design-vue';
+} from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
 import RightContent from './components/RightContent.vue'
 import MoveModels from './components/MoveModels.vue'
 
-const modelList: any = import.meta.glob('@/assets/carouse/carouse*.png', {eager: true})
-const imgList = Object.keys(modelList).map((item: any) => modelList[item].default).slice(0, 10)
-const fileList: any = ref([]);
+const modelList: any = import.meta.glob('@/assets/carouse/carouse*.png', { eager: true })
+const imgList = ref(Object.keys(modelList).map((item: any) => modelList[item].default).slice(0, 10))
+const fileList: any = ref([])
 const timer: any = ref(null)
-const modelActive = ref<number>(0);
-const carousel: any = ref(null);
-const pictureNumer = ref(4);
-const checkedSmile = ref(false);
-const resultInfo = reactive({list: [], number: pictureNumer.value});
+const modelActive = ref<number>(0)
+const carousel: any = ref(null)
+const pictureNumer = ref(4)
+const checkedSmile = ref(false)
+const resultInfo = reactive({ list: [], number: pictureNumer.value })
 const rightContent: any = ref(null)
 //是否全部上传成功
 const allSuccess = computed(() => {
-  const {value} = fileList
+  const { value } = fileList
   return !!value.length && value.every((i: any) => i.uploadEnd)
 })
 //进度
 const progress = computed(() => {
-  const {value} = fileList
+  const { value } = fileList
   const success = value.filter((i: any) => i.uploadEnd)
   return parseInt(String(success.length / value.length * 100))
 })
 //需要禁用按钮
 const needDis: any = computed(() => {
-  const {value} = fileList
+  const { value } = fileList
   const len = value.length
   return (len > 0 && progress.value < 100) || len >= maxLen
 })
-// //上传中，右侧需要loading
-// const isUploading = computed(() => {
-//   const {value} = fileList
-//
-//   return !!value.length && value.some((i: any) => !i.uploadEnd)
-// })
 //算力消耗
 const consumption = computed(() => {
   const len = fileList.value.length
@@ -186,9 +180,16 @@ function startPargress() {
   if (idx > -1) fileList.value[idx].uploadEnd = true
   console.log(fileList.value)
 }
+
+function changeFirstImg(img: string) {
+  const firstImg = imgList.value[0]
+  imgList.value[0] = img
+  selectModel(0)
+  return firstImg
+}
 </script>
 
-<style scoped lang="less">
+<style scoped lang='less'>
 .ModelChangingFace {
   height: 100%;
   overflow: hidden;

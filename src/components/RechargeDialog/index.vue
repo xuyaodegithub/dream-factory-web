@@ -1,5 +1,5 @@
 <template>
-    <a-modal :open="open" @ok="handleOk" class="dia-container" :width="850" @cancel='close'>
+    <a-modal :open="open" @ok="handleOk" class="dia-container" :width="850" @cancel='close' :footer="null">
         <template #title>
             <a-space>
                 <span class="dia-title">算力充值</span>
@@ -7,10 +7,7 @@
             </a-space>
         </template>
         <div class="package-card-container">
-            <package-card />
-            <package-card />
-            <package-card />
-            <package-card />
+            <package-card v-for="packageInfo in packageInfos" :key="packageInfo.id" :info="packageInfo" />
         </div>
         <div class="payment-info">
             <div class="payment-text">付款金额：<span class="payment-amount">2880</span></div>
@@ -32,22 +29,45 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, onMounted,defineEmits,toRef } from 'vue';
+import { defineProps, ref, onMounted, defineEmits, toRef } from 'vue';
 import { AlipayCircleOutlined } from '@ant-design/icons-vue';
 import PackageCard from './PackageCard.vue';
-const props:any = defineProps({
+import { PackageInfo } from '@/types';
+const props: any = defineProps({
     open: {
-      type: Boolean,
-      default: false
+        type: Boolean,
+        default: false
     },
-  close:Function
+    close: Function
 });
 const emit = defineEmits(['update:open']);
-function handleOk (e: MouseEvent)  {
+function handleOk(e: MouseEvent) {
     console.log(e);
     //dialogOpen = false;
-   props.close()
+    props.close()
 };
+
+const packageInfos = ref<PackageInfo[]>([]);
+// 从后端获取套餐数据
+const getPackageIfos = () => {
+    // 假设此处使用axios或fetch从后端获取数据
+    const dataFromBackend: PackageInfo[] = [
+        { id: 1, name: '1个月', price: 480 },
+        { id: 2, name: '3个月', price: 2880 },
+        { id: 3, name: '6个月', price: 8880 },
+        { id: 4, name: '12个月', price: 18880 },
+    ];
+    packageInfos.value = dataFromBackend;
+};
+//获取数据
+getPackageIfos();
+
+// const selectedPrice = ref<number | null>(null);
+
+// const handleCardClicked = (price: number) => {
+//     selectedPrice.value = price;
+// };
+
 </script>
 
 <style lang="less" scoped>

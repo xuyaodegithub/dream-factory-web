@@ -2,7 +2,7 @@
   <main class='RightContent'>
     <div class='concat_us'>
       <div>结果预览：</div>
-      <a-button type='primary' class='view_history' size='large'>查看历史记录</a-button>
+      <a-button type='primary' class='view_history' size='large' @click='()=>router.push("/historyChange")'>查看历史记录</a-button>
     </div>
     <div class='result_list'>
       <div class='empty_box' v-if='isFirstIn'>
@@ -52,12 +52,13 @@
 
 <script setup lang='ts'>
 import { defineProps, computed, onMounted, ref, watch } from 'vue'
+import {useRouter} from 'vue-router'
 import { formatDate } from '@/config/formatDate'
 import {
   EyeOutlined, CheckCircleOutlined
 } from '@ant-design/icons-vue'
 import DownLoad from '@/components/DownLoad/index.vue'
-
+const router = useRouter()
 const mapImg: any = new URL('@/assets/carouse/carouse1.png', import.meta.url).href
 const props = defineProps({
   resultInfo: {

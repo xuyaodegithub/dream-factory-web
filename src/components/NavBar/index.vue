@@ -39,7 +39,7 @@ import { useRouter, RouterLink, useRoute } from 'vue-router'
 import { watch } from 'vue'
 import { routes } from '@/router/index'
 
-const current = ref<string[]>(['homePage'])
+const current = ref<string[]>(['/'])
 const router = useRouter()
 const route = useRoute()
 watch(route, (n: any) => {

@@ -2,7 +2,7 @@
   <main class='RightContent'>
     <div class='concat_us'>
       <div>结果预览：</div>
-      <a-button type='link' class='view_history'>查看历史记录</a-button>
+      <a-button type='primary' class='view_history' size='large'>查看历史记录</a-button>
     </div>
     <div class='result_list'>
       <div class='empty_box' v-if='isFirstIn'>
@@ -11,6 +11,7 @@
       <div class='not_empty_box' v-else>
         <div class='task_date'>
           任务时间：{{ formatDate(Date.now()) }}
+          <a-button type='primary' class='view_history' size='large' @click='()=>downShow=true'>批量下载</a-button>
         </div>
         <div class='result_list_box' v-for='item in allList' :key='item.uid'>
           <div class='result_list_box_item' v-for='n in resNum' :key='n'>
@@ -43,8 +44,9 @@
         <a-image :src='mapImg' :preview='false'></a-image>
       </div>
       <span><right-outlined /></span>
-      <a-button type='primary' class='view_btn'>认可此图片</a-button>
+      <a-button type='primary' class='view_btn'>认可这张图</a-button>
     </a-modal>
+    <DownLoad :downShow='downShow' :close='()=>downShow=false' :handleOk='handleOk' />
   </main>
 </template>
 
@@ -54,6 +56,7 @@ import { formatDate } from '@/config/formatDate'
 import {
   EyeOutlined, CheckCircleOutlined
 } from '@ant-design/icons-vue'
+import DownLoad from '@/components/DownLoad/index.vue'
 
 const mapImg: any = new URL('@/assets/carouse/carouse1.png', import.meta.url).href
 const props = defineProps({
@@ -69,6 +72,7 @@ import {
 
 const checkedImg: any = ref([])
 const open: any = ref(false)
+const downShow: any = ref(false)
 const resList: any = ref([])
 const num = ref<number>(4)
 const isFirstIn = computed(() => !props.resultInfo?.list.length)
@@ -78,20 +82,22 @@ const allList = computed(() => {
 const resNum = computed(() => {
   return num.value || 4
 })
+const taskUids = computed(() => {
+  return resList.value.map((i: any) => i.uid)
+})
 watch(props.resultInfo, () => {
   initUploadImg()
 }, { deep: true })
 
 function initUploadImg() {
   const { list, number } = props.resultInfo
-  const l = [...list].map((item: any) => {
-    const it: any = resList.value.find((i: any) => i.uid === item.uid)
+  const l = [...list].filter((i: any) => !taskUids.value.includes(i.uid)).map((item: any) => {
     return {
       ...item,
-      endFace: it?.endFace || false
+      endFace: false
     }
   })
-  resList.value = [...l]
+  resList.value = [...resList.value, ...l]
   num.value = number
 
 }
@@ -115,6 +121,11 @@ function checkThis(item: any) {
 
 function perviewCurrent(item: any) {
   open.value = true
+}
+
+function handleOk(type: number) {
+  console.log(type, 'type')
+  downShow.value = false
 }
 </script>
 
@@ -160,6 +171,10 @@ function perviewCurrent(item: any) {
         font-size: 14px;
         color: #333333;
         margin-bottom: 24px;
+
+        .ant-btn {
+          margin-left: 24px;
+        }
       }
 
       .result_list_box {
@@ -169,7 +184,7 @@ function perviewCurrent(item: any) {
         flex-wrap: wrap;
 
         &_item {
-          margin: 0 14px 14px 0;
+          margin: 0 12px 12px 0;
           width: 200px;
           height: 200px;
           position: relative;
@@ -303,18 +318,22 @@ function perviewCurrent(item: any) {
         transform: translateX(-50%);
       }
 
-      .ant-image,.sec-img {
+      .ant-image, .sec-img {
         width: 48%;
 
         &:nth-child(2) {
           margin-right: 20px;
         }
       }
-      .sec-img{
+
+      .sec-img {
         position: relative;
-      .ant-image{
-        width: 100%;
-      }}
+
+        .ant-image {
+          width: 100%;
+        }
+      }
+
       .anticon-left, .anticon-right {
         font-size: 48px;
         position: absolute;

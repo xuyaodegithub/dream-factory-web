@@ -6,16 +6,18 @@
         </div>
         <div class="subscription-card">
             <OptionCardVue v-for="subscription in subscriptionList" :key="subscription.subscriptionId"
-                :cardContent="subscription" />
+                :cardContent="subscription" @showRechargeDialog="showModalHandler" />
         </div>
     </div>
+    <RechargeDialog :open="openRechargeDialog" :close='() => openRechargeDialog = false' />
 </template>
 
 <script setup lang="ts">
 import OptionCardVue from "./components/OptionCard.vue";
 import { ref } from "vue";
+import RechargeDialog from '@/components/RechargeDialog/index.vue';
 
-const subscriptionList:any = ref([
+const subscriptionList: any = ref([
     {
         subscriptionId: 1,
         subscriptionPrice: '480',
@@ -35,6 +37,14 @@ const subscriptionList:any = ref([
         subscriptionDesc: ['超级功能一', '超级功能二', '超级功能三', '超级功能四'],
     },
 ]);
+
+const openRechargeDialog = ref<boolean>(false);
+const showModalHandler = () => {
+    console.log(openRechargeDialog.value, 'RechargeModal.value.dialogOpen.value ')
+    openRechargeDialog.value = true
+};
+
+
 </script>
 
 <style lang="less" scoped>

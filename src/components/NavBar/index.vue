@@ -3,10 +3,8 @@
     <div class="logo" @click="goToHomePage">
       <img src="@/assets/images/logo.png" alt="LOGO" />
     </div>
-    <a-menu v-model:selectedKeys="current" theme="dark" mode="horizontal" class="menu-styles">
-      <a-menu-item v-for="navItem in navItems" :key="navItem.key">
-        <router-link :to="navItem.path">{{ navItem.label }}</router-link>
-      </a-menu-item>
+    <a-menu v-model:selectedKeys="current" theme="dark" mode="horizontal" class="menu-styles" :items="navItems"
+      @click="handleClick">
     </a-menu>
     <div class="right-menu">
       <a-space :size="25" class="right-menu-space">
@@ -35,10 +33,40 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { UserOutlined, AccountBookOutlined, ExportOutlined } from '@ant-design/icons-vue'
-import { useRouter,RouterLink } from 'vue-router'
-
-const current = ref<string[]>(['homePage'])
+import { useRouter, useRoute, RouterLink } from 'vue-router'
+import type { MenuProps } from 'ant-design-vue';
 const router = useRouter()
+
+const current = ref<string[]>()
+const navItems = ref<MenuProps['items']>([
+  {
+    key: 'homePage',
+    label: '首页',
+  },
+  {
+    key: 'modelReplace',
+    label: '模特替换',
+  },
+])
+
+const handleClick: MenuProps['onClick'] = (e) => {
+  const clickedKey = String(e.key);
+  current.value = [clickedKey];
+  if (clickedKey === 'homePage') {
+    router.push('/')
+  } else if (clickedKey === 'modelReplace') {
+    router.push('/changingFace')
+  }
+}
+
+router.beforeEach((to, from, next) => {
+  if (to.path === '/') {
+    current.value = ['homePage']
+  } else if (to.path === '/changingFace') {
+    current.value = ['modelReplace']
+  }
+  next()
+})
 
 const goToHomePage = () => {
   router.push('/')
@@ -60,11 +88,6 @@ const menuItems = ref<MenuItem[]>([
   { key: '2', icon: AccountBookOutlined, label: '我的订单', path: '/myOrder' },
   { key: '3', icon: ExportOutlined, label: '退出登录', path: 'javascript:;' },
 ]);
-
-const navItems = ref<MenuItem[]>([
-  { key: 'homePage', label: '首页', path: '/' },
-  { key: 'modelReplace', label: '模特替换', path: '/changingFace' },
-])
 
 </script>
 

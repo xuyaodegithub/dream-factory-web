@@ -1,12 +1,20 @@
 <template>
     <div class="card-container">
-        <div class="package-name">1个月</div>
-        <div class="package-price">480元</div>
-        <div class="package-content">算力值480元，可生成480张图片</div>
+        <div class="package-name">{{ info.name }}</div>
+        <div class="package-price">{{ info.price }}元</div>
+        <div class="package-content">算力值{{ info.price }}元，可生成{{ info.price }}张图片</div>
     </div>
 </template>
 
 <script setup lang="ts">
+import { PackageInfo } from '@/types';
+import { PropType } from 'vue';
+const props = defineProps({
+    info: {
+        type: Object as PropType<PackageInfo>,
+        require: true,
+    }
+})
 
 </script>
 

@@ -19,14 +19,15 @@
             </div>
         </div>
     </a-card>
-    <RechargeDialog :open="openRechargeDialog" :close='()=>openRechargeDialog=false'/>
+    <RechargeDialog :open="openRechargeDialog" :close='() => openRechargeDialog = false' />
 </template>
 
 <script setup lang="ts">
-import { reactive, defineProps, onMounted } from 'vue';
+import { defineProps } from 'vue';
 import { CheckCircleOutlined } from '@ant-design/icons-vue';
 import { ref } from 'vue';
 import RechargeDialog from '@/components/RechargeDialog/index.vue';
+const emit = defineEmits(['showRechargeDialog'])
 
 interface CardContent {
     subscriptionId: number;
@@ -36,20 +37,12 @@ interface CardContent {
 }
 const RechargeModal: any = ref(null)
 const props = defineProps({
-    cardContent:Object
+    cardContent: Object
 });
-//打开充值弹窗
-const openRechargeDialog = ref<boolean>(false);
 
 const showModal = () => {
-  console.log(openRechargeDialog.value, 'RechargeModal.value.dialogOpen.value ')
-
-  openRechargeDialog.value= true
+    emit('showRechargeDialog')
 };
-
-const handleRechargeDialogUpdate = (value: boolean) => {
-    openRechargeDialog.value = value;
-}
 
 </script>
 

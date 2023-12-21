@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { message } from 'ant-design-vue';
 // import qs from 'qs'
-import {getToken, removeToken, clearCookie} from "../utils";
+import {getToken, removeToken, clearCookie} from "../utils/index";
 axios.defaults.withCredentials = true//表示跨域请求时是否需要使用凭证,默认false，一般请求携带cookie是设置为true
 // })
 const instance:any = axios.create( {
@@ -10,7 +10,10 @@ const instance:any = axios.create( {
 } );//自定义axios对象
 instance.interceptors.request.use( (config:any)=> {//为自定义axios设置请求拦截器
   // 在发送请求之前做些什么config是axios请求实例 里面包含axios各种配置项和相关属性信息
-  if (getToken()) config.headers['Authorization'] = {accessToken:getToken()};
+  if (getToken()){
+    config.headers['Authorization'] =getToken();
+    config.headers['Tenant'] ='tenant7dd92c20f9bc74d8';
+  }
   return config
 }, (error:any)=>{
   // 对请求错误做些什么

@@ -1,15 +1,17 @@
-<script setup lang="ts">
+<script setup lang='ts'>
 import {
   onMounted,
   ref,
-  reactive,
+  reactive
 } from 'vue'
 import { RouterView } from 'vue-router'
 import NavBar from '@/components/NavBar/index.vue'
+import { initLogin } from '@/services/index'
 import { initAuthingWebUse, getLoginState } from '@/authingConfig'
 import { useRouter, useRoute } from 'vue-router'
 import { Authing } from '@authing/web'
 import { authingSdk, userInfo } from '@/stores'
+
 const router = useRouter()
 const state = reactive({
   loginState: null
@@ -35,6 +37,7 @@ onMounted(async () => {
   } else {
     // getLoginState()
   }
+  initLogin({  })
 })
 
 function add() {
@@ -51,7 +54,7 @@ function add() {
   </a-layout>
 </template>
 
-<style scoped lang="less">
+<style scoped lang='less'>
 .ant-layout {
   height: 100%;
   overflow: hidden;

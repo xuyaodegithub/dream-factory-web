@@ -1,28 +1,28 @@
 <template>
   <a-layout-header>
-    <div class="logo" @click="goToHomePage">
-      <img src="@/assets/images/logo.png" alt="LOGO" />
+    <div class='logo' @click='goToHomePage'>
+      <img src='@/assets/images/logo.png' alt='LOGO' />
     </div>
-    <a-menu v-model:selectedKeys="current" theme="dark" mode="horizontal" class="menu-styles">
-      <a-menu-item v-for="navItem in navItems" :key="navItem.key">
-        <router-link :to="navItem.path">{{ navItem.label }}</router-link>
+    <a-menu v-model:selectedKeys='current' theme='dark' mode='horizontal' class='menu-styles'>
+      <a-menu-item v-for='navItem in routesList' :key='navItem.path'>
+        <router-link :to='navItem.path'>{{ navItem.name }}</router-link>
       </a-menu-item>
     </a-menu>
-    <div class="right-menu">
-      <a-space :size="25" class="right-menu-space">
-        <span class="account-balance">账户余额: 3000算力</span>
-        <a-button @click="goToBuyingCenter">购买</a-button>
+    <div class='right-menu'>
+      <a-space :size='25' class='right-menu-space'>
+        <span class='account-balance'>账户余额: 3000算力</span>
+        <a-button @click='goToBuyingCenter'>购买</a-button>
         <a-dropdown>
-          <a-avatar size="large" class="avatar">
+          <a-avatar size='large' class='avatar'>
             <template #icon>
               <UserOutlined />
             </template>
           </a-avatar>
           <template #overlay>
             <a-menu>
-              <a-menu-item v-for="menuItem in menuItems" :key="menuItem.key">
-                <component :is="menuItem.icon" />
-                <router-link :to="menuItem.path">{{ menuItem.label }}</router-link>
+              <a-menu-item v-for='menuItem in menuItems' :key='menuItem.key'>
+                <component :is='menuItem.icon' />
+                <router-link :to='menuItem.path'>{{ menuItem.label }}</router-link>
               </a-menu-item>
             </a-menu>
           </template>
@@ -32,14 +32,23 @@
   </a-layout-header>
 </template>
 
-<script lang="ts" setup>
-import { ref } from 'vue'
+<script lang='ts' setup>
+import { computed, ref } from 'vue'
 import { UserOutlined, AccountBookOutlined, ExportOutlined } from '@ant-design/icons-vue'
-import { useRouter,RouterLink } from 'vue-router'
+import { useRouter, RouterLink, useRoute } from 'vue-router'
+import { watch } from 'vue'
+import { routes } from '@/router/index'
 
-const current = ref<string[]>(['homePage'])
+const current = ref<string[]>(['/'])
 const router = useRouter()
-
+const route = useRoute()
+watch(route, (n: any) => {
+  const { path } = n
+  current.value = [path]
+}, { deep: true, immediate: true })
+const routesList = computed(() => {
+  return routes.filter((i: any) => !i.hidden)
+})
 const goToHomePage = () => {
   router.push('/')
 }
@@ -57,18 +66,13 @@ interface MenuItem {
 
 const menuItems = ref<MenuItem[]>([
   { key: '1', icon: UserOutlined, label: '4788778935', path: 'javascript:;' },
-  { key: '2', icon: AccountBookOutlined, label: '我的订单', path: 'javascript:;' },
-  { key: '3', icon: ExportOutlined, label: '退出登录', path: 'javascript:;' },
-]);
-
-const navItems = ref<MenuItem[]>([
-  { key: 'homePage', label: '首页', path: '/' },
-  { key: 'modelReplace', label: '模特替换', path: '/changingFace' },
+  { key: '2', icon: AccountBookOutlined, label: '我的订单', path: '/myOrder' },
+  { key: '3', icon: ExportOutlined, label: '退出登录', path: 'javascript:;' }
 ])
 
 </script>
 
-<style lang="less" scoped>
+<style lang='less' scoped>
 .ant-layout-header {
   display: flex;
   align-items: center;

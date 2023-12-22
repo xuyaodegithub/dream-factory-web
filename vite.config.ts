@@ -10,7 +10,7 @@ export default defineConfig(({ command, mode }) => {
   console.log(env.VITE_MODE)
   return {
     server: {
-      host: 'dev.dreamher.cn',
+      // host: 'dev.dreamher.cn',
       port: 8080
     },
     build: {

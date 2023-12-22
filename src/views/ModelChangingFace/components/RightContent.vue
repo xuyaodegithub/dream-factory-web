@@ -1,29 +1,30 @@
 <template>
-  <main class="RightContent">
-    <div class="concat_us">
+  <main class='RightContent'>
+    <div class='concat_us'>
       <div>结果预览：</div>
-      <a-button type="link" class="view_history">查看历史记录</a-button>
+      <a-button type='primary' class='view_history' size='large' @click='()=>router.push("/historyChange")'>查看历史记录</a-button>
     </div>
-    <div class="result_list">
-      <div class="empty_box" v-if="isFirstIn">
-        <a-empty description="快去左侧上传图片试试吧~"/>
+    <div class='result_list'>
+      <div class='empty_box' v-if='isFirstIn'>
+        <a-empty description='快去左侧上传图片试试吧~' />
       </div>
-      <div class="not_empty_box" v-else>
-        <div class="task_date">
+      <div class='not_empty_box' v-else>
+        <div class='task_date'>
           任务时间：{{ formatDate(Date.now()) }}
+          <a-button type='primary' class='view_history' size='large' @click='()=>downShow=true'>批量下载</a-button>
         </div>
-        <div class="result_list_box" v-for="item in allList" :key="item.uid">
-          <div class="result_list_box_item" v-for="n in resNum" :key="n">
-            <CheckCircleOutlined v-if="item.endFace" :class="{checked:checkedImg.includes(item.uid)}"/>
-            <a-image :src="mapImg" @click="checkThis(item)" :preview="false" :width="200"
-                     :height="200" v-if="item.endFace"></a-image>
-            <div class="skeleton_img" v-else>
-              <a-skeleton-image class="placeholder_img"/>
-              <a-skeleton-button active size="small" class="placeholder_button"/>
-              <div class="placeholder_text">图片生成中，请稍后...</div>
+        <div class='result_list_box' v-for='item in allList' :key='item.uid'>
+          <div class='result_list_box_item' v-for='n in resNum' :key='n'>
+            <CheckCircleOutlined v-if='item.endFace' :class='{checked:checkedImg.includes(item.uid)}' />
+            <a-image :src='mapImg' @click='checkThis(item)' :preview='false' :width='200'
+                     :height='200' v-if='item.endFace'></a-image>
+            <div class='skeleton_img' v-else>
+              <a-skeleton-image class='placeholder_img' />
+              <a-skeleton-button active size='small' class='placeholder_button' />
+              <div class='placeholder_text'>图片生成中，请稍后...</div>
             </div>
-            <div class="previewMask" @click.stop="perviewCurrent(item)">
-              <EyeOutlined/>
+            <div class='previewMask' @click.stop='perviewCurrent(item)'>
+              <EyeOutlined />
               预览
             </div>
           </div>
@@ -31,32 +32,48 @@
       </div>
     </div>
     <a-modal
-        v-model:open="open"
-        width="80%"
-        wrap-class-name="full-modal"
-        :footer="null"
+      v-model:open='open'
+      width='80%'
+      wrap-class-name='full-modal'
+      :footer='null'
     >
-      <a-image :src="mapImg" :preview="false"></a-image>
-      <a-image :src="mapImg" :preview="false"></a-image>
+      <span><left-outlined /></span>
+      <a-image :src='mapImg' :preview='false'></a-image>
+      <div class='sec-img'>
+        <CheckCircleOutlined :class='{checked:true}' />
+        <a-image :src='mapImg' :preview='false'></a-image>
+      </div>
+      <span><right-outlined /></span>
+      <a-button type='primary' class='view_btn'>认可这张图</a-button>
     </a-modal>
+    <DownLoad :downShow='downShow' :close='()=>downShow=false' :handleOk='handleOk' />
   </main>
 </template>
 
-<script setup lang="ts">
-import {defineProps, computed, onMounted, ref,watch} from "vue";
-import {formatDate} from '@/config/formatDate'
+<script setup lang='ts'>
+import { defineProps, computed, onMounted, ref, watch } from 'vue'
+import {useRouter} from 'vue-router'
+import { formatDate } from '@/config/formatDate'
 import {
   EyeOutlined, CheckCircleOutlined
-} from '@ant-design/icons-vue';
-const mapImg:any = new URL('@/assets/carouse/carouse1.png',import.meta.url).href
+} from '@ant-design/icons-vue'
+import DownLoad from '@/components/DownLoad/index.vue'
+const router = useRouter()
+const mapImg: any = new URL('@/assets/carouse/carouse1.png', import.meta.url).href
 const props = defineProps({
   resultInfo: {
     type: Object,
-    default: () => ({list: [], number: 4})
-  },
+    default: () => ({ list: [], number: 4 })
+  }
 })
+import {
+  LeftOutlined,
+  RightOutlined
+} from '@ant-design/icons-vue'
+
 const checkedImg: any = ref([])
 const open: any = ref(false)
+const downShow: any = ref(false)
 const resList: any = ref([])
 const num = ref<number>(4)
 const isFirstIn = computed(() => !props.resultInfo?.list.length)
@@ -66,23 +83,27 @@ const allList = computed(() => {
 const resNum = computed(() => {
   return num.value || 4
 })
-watch(props.resultInfo,()=>{
+const taskUids = computed(() => {
+  return resList.value.map((i: any) => i.uid)
+})
+watch(props.resultInfo, () => {
   initUploadImg()
-},{deep:true})
+}, { deep: true })
+
 function initUploadImg() {
-  const {list, number} = props.resultInfo
-  const l = [...list].map((item:any)=>{
-    const it:any = resList.value.find((i:any)=>i.uid === item.uid)
+  const { list, number } = props.resultInfo
+  const l = [...list].filter((i: any) => !taskUids.value.includes(i.uid)).map((item: any) => {
     return {
       ...item,
-      endFace:it?.endFace || false
+      endFace: false
     }
   })
-  resList.value=[...l]
+  resList.value = [...resList.value, ...l]
   num.value = number
 
 }
-onMounted(()=>{
+
+onMounted(() => {
   setInterval(() => {
     const idx = resList.value.findIndex((i: any) => !i.endFace)
     if (idx > -1) {
@@ -92,7 +113,7 @@ onMounted(()=>{
 })
 
 function checkThis(item: any) {
-  const {uid} = item
+  const { uid } = item
   const idx = checkedImg.value.findIndex((i: string) => i === uid)
   if (idx > -1) {
     checkedImg.value.splice(idx, 1)
@@ -102,9 +123,14 @@ function checkThis(item: any) {
 function perviewCurrent(item: any) {
   open.value = true
 }
+
+function handleOk(type: number) {
+  console.log(type, 'type')
+  downShow.value = false
+}
 </script>
 
-<style scoped lang="less">
+<style scoped lang='less'>
 .RightContent {
   height: 100%;
   display: flex;
@@ -146,6 +172,10 @@ function perviewCurrent(item: any) {
         font-size: 14px;
         color: #333333;
         margin-bottom: 24px;
+
+        .ant-btn {
+          margin-left: 24px;
+        }
       }
 
       .result_list_box {
@@ -155,7 +185,7 @@ function perviewCurrent(item: any) {
         flex-wrap: wrap;
 
         &_item {
-          margin: 0 14px 14px 0;
+          margin: 0 12px 12px 0;
           width: 200px;
           height: 200px;
           position: relative;
@@ -256,7 +286,7 @@ function perviewCurrent(item: any) {
 
 }
 </style>
-<style lang="less">
+<style lang='less'>
 .full-modal .ant-modal {
   top: 0 !important;
   height: 100%;
@@ -282,12 +312,55 @@ function perviewCurrent(item: any) {
       overflow: auto;
       width: 100%;
 
-      .ant-image {
-        width: 50%;
+      .view_btn {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
 
-        &:first-child {
+      .ant-image, .sec-img {
+        width: 48%;
+
+        &:nth-child(2) {
           margin-right: 20px;
         }
+      }
+
+      .sec-img {
+        position: relative;
+
+        .ant-image {
+          width: 100%;
+        }
+      }
+
+      .anticon-left, .anticon-right {
+        font-size: 48px;
+        position: absolute;
+        top: 50%;
+        color: #ffffff;
+        cursor: pointer;
+      }
+
+      .anticon-left {
+        left: 0;
+        transform: translate(-200%, -50%);
+      }
+
+      .anticon-right {
+        right: 0;
+        transform: translate(200%, -50%);
+      }
+
+      .anticon-check-circle {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        z-index: 99;
+        font-size: 36px;
+        //color: #7cb305;
+        color: #999999;
       }
     }
   }

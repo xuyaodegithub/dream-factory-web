@@ -45,7 +45,7 @@ onUnmounted(()=>{
       <a-image :src="pageList[item].default" :preview="false"></a-image>
       <div class="use-btn-cover" v-if="idx === 0">
         <a-button size="large" @click="router.push('/changingFace')">立即使用</a-button>
-        <a-button size="large">合作咨询</a-button>
+<!--        <a-button size="large">合作咨询</a-button>-->
       </div>
     </div>
     <div class="exhibition-of-works">

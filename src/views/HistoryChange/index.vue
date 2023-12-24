@@ -1,7 +1,7 @@
 <template>
   <main class='history_list'>
     <div class='history_list_title'>历史记录</div>
-    <div class='history_list_list' :loading='true'>
+    <div class='history_list_list'>
       <a-card hoverable style='width: 19%' v-for='item in list' :key='item.name' @click='openDetail(item)'>
         <a-card-meta :title='`${item.name}：${formatDate(item.time)}`'>
           <template #description>费用：{{ item.pay }}算力</template>
@@ -17,7 +17,7 @@
 
 <script setup lang='ts'>
 import { ref } from 'vue'
-
+import {formatDate} from '@/config/formatDate'
 const openModal = ref(false)
 const selectItem = ref({})
 const a = [

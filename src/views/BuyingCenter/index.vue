@@ -41,10 +41,10 @@
 
 <script setup lang="ts">
 import OptionCardVue from "./components/OptionCard.vue";
-import { ref } from "vue";
+import { ref,onMounted } from "vue";
 import { CheckCircleOutlined, SendOutlined } from '@ant-design/icons-vue';
 import RechargeDialog from '@/components/RechargeDialog/index.vue';
-
+import {initSkusList} from '@/services'
 const subscriptionList: any = ref([
     {
         subscriptionId: 1,
@@ -74,7 +74,10 @@ const showModalHandler = () => {
     console.log(openRechargeDialog.value, 'RechargeModal.value.dialogOpen.value ')
     openRechargeDialog.value = true
 };
+onMounted(async ()=>{
+  const {data:{items}} = await initSkusList({})
 
+})
 
 </script>
 

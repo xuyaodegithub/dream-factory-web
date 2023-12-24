@@ -1,7 +1,7 @@
 <template>
   <a-layout-header>
     <div class='logo' @click='goToHomePage'>
-      <img src='@/assets/images/logo.png' alt='LOGO' />
+      <img src='@/assets/images/logo.png' alt='LOGO'/>
     </div>
     <a-menu v-model:selectedKeys='current' theme='dark' mode='horizontal' class='menu-styles'>
       <a-menu-item v-for='navItem in routesList' :key='navItem.path'>
@@ -10,19 +10,22 @@
     </a-menu>
     <div class='right-menu'>
       <a-space :size='25' class='right-menu-space'>
-        <span class='account-balance'>账户余额: 3000算力</span>
+        <span class='account-balance' v-if="userMsg.phone">账户余额: {{ userMsg.leftTokenCount }} 算力</span>
         <a-button @click='goToBuyingCenter'>购买</a-button>
-        <a-dropdown>
-          <a-avatar size='large' class='avatar'>
-            <template #icon>
-              <UserOutlined />
-            </template>
+        <a-button type="primary" v-if="!userMsg.phone" @click="getLogin">登录</a-button>
+        <a-dropdown v-else>
+          <a-avatar size='large' class='avatar' :src="userMsg.photo">
+            <!--            <template #icon>-->
+            <!--              <UserOutlined/>-->
+            <!--            </template>-->
           </a-avatar>
           <template #overlay>
             <a-menu>
-              <a-menu-item v-for='menuItem in menuItems' :key='menuItem.key'>
-                <component :is='menuItem.icon' />
-                <router-link :to='menuItem.path'>{{ menuItem.label }}</router-link>
+              <a-menu-item v-for='menuItem in menuItems' :key='menuItem.key' @click="jumpPage(menuItem)">
+                <div class="item_ground">
+                  <component :is='menuItem.icon'/>
+                  <span :to='menuItem.path'>{{ menuItem.label }}</span>
+                </div>
               </a-menu-item>
             </a-menu>
           </template>
@@ -33,21 +36,55 @@
 </template>
 
 <script lang='ts' setup>
-import { computed, ref } from 'vue'
-import { UserOutlined, AccountBookOutlined, ExportOutlined } from '@ant-design/icons-vue'
-import { useRouter, RouterLink, useRoute } from 'vue-router'
-import { watch } from 'vue'
-import { routes } from '@/router/index'
+import {computed, ref} from 'vue'
+import {UserOutlined, AccountBookOutlined, ExportOutlined} from '@ant-design/icons-vue'
+import {useRouter, RouterLink, useRoute} from 'vue-router'
+import {watch} from 'vue'
+import {routes} from '@/router/index'
+import {userInfo} from "@/stores";
+import {useGuard} from "@authing/guard-vue3";
 
+const userStore:any = userInfo()
 const current = ref<string[]>(['/'])
 const router = useRouter()
 const route = useRoute()
+const guard = useGuard();
+const userMsg = computed(() => {
+  const {userInfo: userMsg} = userInfo()
+  return userMsg
+
+})
+const menuItems = computed(() => {
+  return [
+    {key: '1', icon: UserOutlined, label: userMsg.value.phone, path: ''},
+    {key: '2', icon: AccountBookOutlined, label: '我的订单', path: '/myOrder'},
+    {key: '3', icon: ExportOutlined, label: '退出登录', path: '', logout}
+  ]
+})
+
+function getLogin() {
+  guard.startWithRedirect();
+}
+
+async function logout() {
+  await guard.logout()
+  userStore.clearUserInfo({})
+}
+
+function jumpPage(item: any) {
+  const {path, logout} = item
+  if (path) router.push(path)
+  else {
+    logout && logout()
+  }
+}
+
 watch(route, (n: any) => {
-  const { path } = n
+  const {path} = n
   current.value = [path]
-}, { deep: true, immediate: true })
+}, {deep: true, immediate: true})
 const routesList = computed(() => {
-  return routes.filter((i: any) => !i.hidden)
+  return routes[1].children.filter((i: any) => !i.hidden)
 })
 const goToHomePage = () => {
   router.push('/')
@@ -57,18 +94,6 @@ const goToBuyingCenter = () => {
   router.push('/buy')
 }
 
-interface MenuItem {
-  key: string;
-  icon?: any;
-  label: string;
-  path: string;
-}
-
-const menuItems = ref<MenuItem[]>([
-  { key: '1', icon: UserOutlined, label: '4788778935', path: 'javascript:;' },
-  { key: '2', icon: AccountBookOutlined, label: '我的订单', path: '/myOrder' },
-  { key: '3', icon: ExportOutlined, label: '退出登录', path: 'javascript:;' }
-])
 
 </script>
 
@@ -112,6 +137,15 @@ const menuItems = ref<MenuItem[]>([
     .avatar {
       background-color: #87d068;
     }
+  }
+}
+
+.item_ground {
+  display: flex;
+  align-items: center;
+
+  span {
+    margin-left: 8px;
   }
 }
 </style>

@@ -2,29 +2,31 @@
   <main class='RightContent'>
     <div class='concat_us'>
       <div>结果预览：</div>
-      <a-button type='primary' class='view_history' size='large' @click='()=>router.push("/historyChange")'>查看历史记录</a-button>
+      <a-button type='primary' class='view_history' size='large' @click='()=>router.push("/historyChange")'>
+        查看历史记录
+      </a-button>
     </div>
     <div class='result_list'>
       <div class='empty_box' v-if='isFirstIn'>
-        <a-empty description='快去左侧上传图片试试吧~' />
+        <a-empty description='快去左侧上传图片试试吧~'/>
       </div>
       <div class='not_empty_box' v-else>
         <div class='task_date'>
-          任务时间：{{ formatDate(Date.now()) }}
+          任务时间：{{ taskList[0]?.processName || formatDate(Date.now()) }}
           <a-button type='primary' class='view_history' size='large' @click='()=>downShow=true'>批量下载</a-button>
         </div>
         <div class='result_list_box' v-for='item in allList' :key='item.uid'>
-          <div class='result_list_box_item' v-for='n in resNum' :key='n'>
-            <CheckCircleOutlined v-if='item.endFace' :class='{checked:checkedImg.includes(item.uid)}' />
-            <a-image :src='mapImg' @click='checkThis(item)' :preview='false' :width='200'
-                     :height='200' v-if='item.endFace'></a-image>
+          <div class='result_list_box_item' v-for='n in item.number' :key='n'>
+            <CheckCircleOutlined v-if='item.thumbnailFileUrl' :class='{checked:checkedImg.includes(item.uid)}'/>
+            <a-image :src='item.thumbnailFileUrl' @click='checkThis(item)' :preview='false' :width='200'
+                     v-if='item.thumbnailFileUrl'></a-image>
             <div class='skeleton_img' v-else>
-              <a-skeleton-image class='placeholder_img' />
-              <a-skeleton-button active size='small' class='placeholder_button' />
+              <a-skeleton-image class='placeholder_img'/>
+              <a-skeleton-button active size='small' class='placeholder_button'/>
               <div class='placeholder_text'>图片生成中，请稍后...</div>
             </div>
             <div class='previewMask' @click.stop='perviewCurrent(item)'>
-              <EyeOutlined />
+              <EyeOutlined/>
               预览
             </div>
           </div>
@@ -32,88 +34,128 @@
       </div>
     </div>
     <a-modal
-      v-model:open='open'
-      width='80%'
-      wrap-class-name='full-modal'
-      :footer='null'
+        v-model:open='open'
+        width='80%'
+        wrap-class-name='full-modal'
+        :footer='null'
     >
-      <span><left-outlined /></span>
+      <span><left-outlined/></span>
       <a-image :src='mapImg' :preview='false'></a-image>
       <div class='sec-img'>
-        <CheckCircleOutlined :class='{checked:true}' />
+        <CheckCircleOutlined :class='{checked:true}'/>
         <a-image :src='mapImg' :preview='false'></a-image>
       </div>
-      <span><right-outlined /></span>
+      <span><right-outlined/></span>
       <a-button type='primary' class='view_btn'>认可这张图</a-button>
     </a-modal>
-    <DownLoad :downShow='downShow' :close='()=>downShow=false' :handleOk='handleOk' />
+    <DownLoad :downShow='downShow' :close='()=>downShow=false' :handleOk='handleOk'/>
   </main>
 </template>
 
 <script setup lang='ts'>
-import { defineProps, computed, onMounted, ref, watch } from 'vue'
+import {defineProps, computed, onMounted, ref, watch, nextTick} from 'vue'
 import {useRouter} from 'vue-router'
-import { formatDate } from '@/config/formatDate'
+import {formatDate} from '@/config/formatDate'
 import {
   EyeOutlined, CheckCircleOutlined
 } from '@ant-design/icons-vue'
 import DownLoad from '@/components/DownLoad/index.vue'
+import {commitProcess, rotationProcessResult, getImgDownUrl, getProcessIdImgDownUrl} from '@/services'
+//processStatus PENDING - 排队中 PROCESSING - 处理中 FAILED - 已失败 SUCCEED - 已完成
+
+const [PENDING, PROCESSING, FAILED, SUCCEED] = ['PENDING', 'PROCESSING', 'FAILED', 'SUCCEED']
 const router = useRouter()
 const mapImg: any = new URL('@/assets/carouse/carouse1.png', import.meta.url).href
 const props = defineProps({
   resultInfo: {
     type: Object,
-    default: () => ({ list: [], number: 4 })
+    default: () => ({list: [], number: 4, modelSmile: false, modelId: ''})
   }
 })
 import {
   LeftOutlined,
   RightOutlined
 } from '@ant-design/icons-vue'
+import axios from "axios";
 
 const checkedImg: any = ref([])
 const open: any = ref(false)
 const downShow: any = ref(false)
-const resList: any = ref([])
-const num = ref<number>(4)
+const taskList: any = ref([])
 const isFirstIn = computed(() => !props.resultInfo?.list.length)
 const allList = computed(() => {
-  return resList.value || []
-})
-const resNum = computed(() => {
-  return num.value || 4
+  return taskList.value.reduce((pre: any, i: any) => {
+    const {list, number} = i
+    console.log(number, 'number')
+    return [...pre, ...list.map((s: any) => ({...s, number}))]
+  }, [])
 })
 const taskUids = computed(() => {
-  return resList.value.map((i: any) => i.uid)
+  return taskList.value.reduce((pre: any, i: any) => {
+    const {list} = i
+    return [...pre, ...list.map((t: any) => t.uid)]
+  }, [])
 })
 watch(props.resultInfo, () => {
-  initUploadImg()
-}, { deep: true })
+  createTask()
+}, {deep: true})
 
-function initUploadImg() {
-  const { list, number } = props.resultInfo
+async function createTask() {
+  const {list, number, modelSmile, modelId} = props.resultInfo
   const l = [...list].filter((i: any) => !taskUids.value.includes(i.uid)).map((item: any) => {
     return {
       ...item,
-      endFace: false
     }
   })
-  resList.value = [...resList.value, ...l]
-  num.value = number
+  if (!l.length) return
+  const task = {list: l, modelSmile, number, modelId}
+  startTask(task)
+}
+
+async function startTask(task: any) {
+  const {list, modelSmile, number, modelId} = task
+  const payload = {
+    modelId,
+    fileIdList: list.map((i: any) => i.fileId),
+    modelSmile,
+    copyCount: number
+  }
+  //开始任务
+  const {data: {processId = ''} = {}} = await commitProcess(payload)
+  if (processId) {
+    taskList.value.push({...task, processId, processName: Date.now()})
+    rotationResults(processId)
+  }
+}
+
+//轮训结果
+async function rotationResults(processId: string | number) {
+  try {
+    const {data: {taskList: resList = [], processStatus, processName},} = await rotationProcessResult(processId)
+    const currIdx = taskList.value.findIndex(({processId: id}: any) => id === processId)
+    const {list = []} = taskList.value[currIdx]
+    resList.forEach((item: any) => {
+      const {baseFile: {fileId, originalFileUrl, thumbnailFileUrl} = {}, processedFileList} = item
+      const currfileIdx = list.findIndex(({fileId: fId}: any) => fId === fileId)
+      if (currfileIdx > -1) {
+        list[currfileIdx] = {...list[currfileIdx], originalFileUrl, thumbnailFileUrl, processedFileList}
+      }
+    })
+    taskList.value[currIdx] = {...taskList.value[currIdx], list, processName}
+    // console.log(taskList.value, 'taskList.value')
+    if (![FAILED, SUCCEED].includes(processStatus)) setTimeout(() => rotationResults(processId), 1500)
+  } catch (e: any) {
+    setTimeout(() => rotationResults(processId), 1500)
+  }
 
 }
 
 onMounted(() => {
-  setInterval(() => {
-    const idx = resList.value.findIndex((i: any) => !i.endFace)
-    if (idx > -1) {
-      resList.value[idx].endFace = true
-    }
-  }, 2000)
+  // rotationResults(10)
 })
 
 function checkThis(item: any) {
-  const { uid } = item
+  const {uid} = item
   const idx = checkedImg.value.findIndex((i: string) => i === uid)
   if (idx > -1) {
     checkedImg.value.splice(idx, 1)
@@ -187,7 +229,6 @@ function handleOk(type: number) {
         &_item {
           margin: 0 12px 12px 0;
           width: 200px;
-          height: 200px;
           position: relative;
           overflow: hidden;
 

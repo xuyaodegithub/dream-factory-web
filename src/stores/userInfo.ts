@@ -1,11 +1,24 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import {defineStore} from 'pinia'
+import {ref} from 'vue'
 
-export const userInfo = defineStore('userInfo', ()=>{
-  const userInfo = ref(null)
-  function saveUserInfo(info:any) {
-    userInfo.value=info
+interface user {
+  leftTokenCount: number
+  phone: number | string
+  photo: string
+  token: string
+  Tenant: string
+}
+
+export const userInfo = defineStore('userInfo', () => {
+  const userInfo = ref<user>({leftTokenCount: 0, phone: '', photo: '', token: '', Tenant: ''})
+
+  function saveUserInfo(info: any) {
+    userInfo.value = {...userInfo.value, ...info}
   }
 
-  return { userInfo, saveUserInfo }
+  function clearUserInfo() {
+    userInfo.value = {leftTokenCount: 0, phone: '', photo: '', token: '', Tenant: ''}
+  }
+
+  return {userInfo, saveUserInfo,clearUserInfo}
 })

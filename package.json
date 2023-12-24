@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "serve": "vite --port 8080",
+    "serve": "vite",
     "build_test": "run-p type-check \"build-only-test {@}\" --",
     "build_prod": "run-p type-check \"build-only-prod {@}\" --",
     "build": "run-p type-check \"build-only {@}\" --",

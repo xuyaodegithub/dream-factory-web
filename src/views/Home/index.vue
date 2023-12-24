@@ -32,7 +32,6 @@ function resize(){
 onMounted(async () => {
   await initImages()
   window.addEventListener('resize',resize)
-  console.log(imageList.value, '-=-=', imageList)
 })
 onUnmounted(()=>{
   window.removeEventListener('resize',resize)

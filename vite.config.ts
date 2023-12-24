@@ -10,8 +10,20 @@ export default defineConfig(({ command, mode }) => {
   console.log(env.VITE_MODE)
   return {
     server: {
-      // host: 'dev.dreamher.cn',
-      port: 8080
+      host: 'dev.dreamher.cn',
+      port: 8080,
+      proxy:{
+        [env.VITE_BASE_URL]:{
+          target:env.VITE_SERVE_URL,
+          changeOrigin:true,
+          rewrite:path => path.replace(RegExp(`^${env.VITE_BASE_URL}`),'')
+        },
+        [env.VITE_FILE_BASE_URL]:{
+          target:env.VITE_UPLOAD_URL,
+          changeOrigin:true,
+          rewrite:path => path.replace(RegExp(`^${env.VITE_FILE_BASE_URL}`),'')
+        },
+      }
     },
     build: {
       assetsDir: 'static',

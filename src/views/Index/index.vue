@@ -26,17 +26,20 @@ onMounted(async () => {
   // })
   // console.log('getAccessTokenByIdToken: ', res)
   //如果登录了就获取余额 和 租户信息
-  // if (loginStatus) await getTenantsWithBills()
+  if (loginStatus) await getTenantsWithBills()
   showContent.value = true
 })
 
 async function getTenantsWithBills() {
   try {
-    const [res1, res2] = await Promise.all([initTenants({}), initBillings({})])
+    // const [res1, res2] = await Promise.all([initTenants({}), initBillings({})])
+    const res1 = await initTenants({})
     const {data: {items}}: any = res1
+    userStore.saveUserInfo({Tenant: items[0].tenantId})
+    const res2 = await initBillings({})
     const {data: {leftTokenCount}} = res2
-    userStore.saveUserInfo({Tenant: items[0].tenantId, leftTokenCount})
-    console.log({Tenant: items[0].tenantId, leftTokenCount})
+    userStore.saveUserInfo({leftTokenCount})
+    console.log({leftTokenCount})
   } catch (e) {
   }
 }

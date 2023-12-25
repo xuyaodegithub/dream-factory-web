@@ -1,52 +1,85 @@
 <template>
   <main class='RightContent'>
     <div class='concat_us'>
-      <div>结果预览：</div>
+      <div>结果预览：
+        <a-button type='primary' class='down_load_btn' size='large' @click='()=>downShow=true'>批量下载</a-button>
+      </div>
       <a-button type='primary' class='view_history' size='large' @click='()=>router.push("/historyChange")'>
         查看历史记录
       </a-button>
     </div>
-    <div class='result_list'>
-      <div class='empty_box' v-if='isFirstIn'>
+    <div class='result_list' id="listDom">
+      <div class='empty_box' v-if='!processList.length'>
         <a-empty description='快去左侧上传图片试试吧~'/>
       </div>
       <div class='not_empty_box' v-else>
-        <div class='task_date'>
-          任务时间：{{ taskList[0]?.processName || formatDate(Date.now()) }}
-          <a-button type='primary' class='view_history' size='large' @click='()=>downShow=true'>批量下载</a-button>
-        </div>
-        <div class='result_list_box' v-for='item in allList' :key='item.uid'>
-          <div class='result_list_box_item' v-for='n in item.number' :key='n'>
-            <CheckCircleOutlined v-if='item.thumbnailFileUrl' :class='{checked:checkedImg.includes(item.uid)}'/>
-            <a-image :src='item.thumbnailFileUrl' @click='checkThis(item)' :preview='false' :width='200'
-                     v-if='item.thumbnailFileUrl'></a-image>
-            <div class='skeleton_img' v-else>
-              <a-skeleton-image class='placeholder_img'/>
-              <a-skeleton-button active size='small' class='placeholder_button'/>
-              <div class='placeholder_text'>图片生成中，请稍后...</div>
-            </div>
-            <div class='previewMask' @click.stop='perviewCurrent(item)'>
-              <EyeOutlined/>
-              预览
+        <div class="process_list" v-for='it in processList' :key='it.processId'>
+          <div :class='{task_date:true,process_fail:it.fail}'>
+            任务时间：{{ it?.processName || formatDate(Date.now()) }}
+            <span style="margin-left: 20px;" v-if="it.fail">任务失败，或部分失败，请换一张图片试试吧。</span>
+          </div>
+          <div class='result_list_box' v-for='item in it.list' :key='item.fileId'>
+            <div class='result_list_box_item' v-for='n in it.number' :key='n'>
+              <CheckCircleOutlined v-if='!!item.processedFileList.length'
+                                   :class='{checked:checkedStatus(item,n-1)}'/>
+              <a-image :src='it.fail ? fallback : item.processedFileList[n-1].thumbnailFileUrl'
+                       @click='checkThis(item.processedFileList,n-1)'
+                       :preview='false'
+                       :width='200'
+                       v-if='!!item.processedFileList.length || it.fail'></a-image>
+              <!--              //失败了不能预览-->
+              <div class='skeleton_img' v-if="!item.processedFileList.length && !it.fail">
+                <a-skeleton-image class='placeholder_img'/>
+                <a-skeleton-button active size='small' class='placeholder_button'/>
+                <div class='placeholder_text'>图片生成中，请稍后...</div>
+              </div>
+              <div class='previewMask' @click.stop='perviewCurrent(item,n-1)' v-if="!it.fail">
+                <EyeOutlined/>
+                预览
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <!--    图片预览modal-->
     <a-modal
         v-model:open='open'
         width='80%'
         wrap-class-name='full-modal'
         :footer='null'
     >
-      <span><left-outlined/></span>
-      <a-image :src='mapImg' :preview='false'></a-image>
+      <span @click="perviewNext(false)"><left-outlined/></span>
+      <a-image
+          :src='perviewObj.originalFileUrl'
+          :preview='false'>
+        <template #placeholder>
+          <a-image
+              :src="perviewObj.thumbnailFileUrl"
+              width="100%"
+              :preview="false"
+          />
+        </template>
+      </a-image>
       <div class='sec-img'>
-        <CheckCircleOutlined :class='{checked:true}'/>
-        <a-image :src='mapImg' :preview='false'></a-image>
+        <CheckCircleOutlined :class='{checked:perviewChecked}'/>
+        <a-image
+            :src='perviewObj.processedFileList[perviewObj.index].originalFileUrl'
+            width="100%"
+            :preview='false'>
+          <template #placeholder>
+            <a-image
+                :src="perviewObj.processedFileList[perviewObj.index].thumbnailFileUrl"
+                width="100%"
+                :preview="false"
+            />
+          </template>
+        </a-image>
       </div>
-      <span><right-outlined/></span>
-      <a-button type='primary' class='view_btn'>认可这张图</a-button>
+      <span @click="perviewNext(true)"><right-outlined/></span>
+      <a-button type='primary' class='view_btn' @click='checkThis(perviewObj.processedFileList,perviewObj.index)'>
+        {{ perviewChecked ? '取消认可' : '认可这张图' }}
+      </a-button>
     </a-modal>
     <DownLoad :downShow='downShow' :close='()=>downShow=false' :handleOk='handleOk'/>
   </main>
@@ -61,11 +94,11 @@ import {
 } from '@ant-design/icons-vue'
 import DownLoad from '@/components/DownLoad/index.vue'
 import {commitProcess, rotationProcessResult, getImgDownUrl, getProcessIdImgDownUrl} from '@/services'
+import {fallback} from '@/config'
 //processStatus PENDING - 排队中 PROCESSING - 处理中 FAILED - 已失败 SUCCEED - 已完成
 
 const [PENDING, PROCESSING, FAILED, SUCCEED] = ['PENDING', 'PROCESSING', 'FAILED', 'SUCCEED']
 const router = useRouter()
-const mapImg: any = new URL('@/assets/carouse/carouse1.png', import.meta.url).href
 const props = defineProps({
   resultInfo: {
     type: Object,
@@ -76,25 +109,28 @@ import {
   LeftOutlined,
   RightOutlined
 } from '@ant-design/icons-vue'
-import axios from "axios";
 
 const checkedImg: any = ref([])
 const open: any = ref(false)
 const downShow: any = ref(false)
-const taskList: any = ref([])
-const isFirstIn = computed(() => !props.resultInfo?.list.length)
-const allList = computed(() => {
-  return taskList.value.reduce((pre: any, i: any) => {
-    const {list, number} = i
-    console.log(number, 'number')
-    return [...pre, ...list.map((s: any) => ({...s, number}))]
-  }, [])
+const processList: any = ref([])
+const perviewObj = ref({
+  originalFileUrl: '',
+  thumbnailFileUrl: '',
+  processedFileList: [],
+  index: 0,
 })
 const taskUids = computed(() => {
-  return taskList.value.reduce((pre: any, i: any) => {
+  return processList.value.reduce((pre: any, i: any) => {
     const {list} = i
     return [...pre, ...list.map((t: any) => t.uid)]
   }, [])
+})
+//当前预览图片是否认可状态
+const perviewChecked = computed(() => {
+  const {processedFileList, index} = perviewObj.value
+
+  return processedFileList.length ? checkedImg.value.includes(processedFileList[index]?.fileId) : false
 })
 watch(props.resultInfo, () => {
   createTask()
@@ -104,6 +140,9 @@ async function createTask() {
   const {list, number, modelSmile, modelId} = props.resultInfo
   const l = [...list].filter((i: any) => !taskUids.value.includes(i.uid)).map((item: any) => {
     return {
+      processedFileList: [],
+      originalFileUrl: '',
+      thumbnailFileUrl: '',
       ...item,
     }
   })
@@ -123,8 +162,11 @@ async function startTask(task: any) {
   //开始任务
   const {data: {processId = ''} = {}} = await commitProcess(payload)
   if (processId) {
-    taskList.value.push({...task, processId, processName: Date.now()})
+    processList.value.push({...task, processId, processName: Date.now(), fail: false})
     rotationResults(processId)
+    await nextTick()
+    const dom: any = document.querySelector('#listDom')
+    dom.scrollTop = dom.scrollHeight
   }
 }
 
@@ -132,20 +174,22 @@ async function startTask(task: any) {
 async function rotationResults(processId: string | number) {
   try {
     const {data: {taskList: resList = [], processStatus, processName},} = await rotationProcessResult(processId)
-    const currIdx = taskList.value.findIndex(({processId: id}: any) => id === processId)
-    const {list = []} = taskList.value[currIdx]
+    const currIdx = processList.value.findIndex(({processId: id}: any) => id === processId)
+    const {list = []} = processList.value[currIdx]
     resList.forEach((item: any) => {
-      const {baseFile: {fileId, originalFileUrl, thumbnailFileUrl} = {}, processedFileList} = item
+      const {baseFile: {fileId, originalFileUrl, thumbnailFileUrl} = {}, processedFileList = []} = item
       const currfileIdx = list.findIndex(({fileId: fId}: any) => fId === fileId)
       if (currfileIdx > -1) {
         list[currfileIdx] = {...list[currfileIdx], originalFileUrl, thumbnailFileUrl, processedFileList}
       }
     })
-    taskList.value[currIdx] = {...taskList.value[currIdx], list, processName}
-    // console.log(taskList.value, 'taskList.value')
+    processList.value[currIdx] = {...processList.value[currIdx], list, processName}
     if (![FAILED, SUCCEED].includes(processStatus)) setTimeout(() => rotationResults(processId), 1500)
+    if (processStatus === FAILED) {
+      processList.value[currIdx].fail = true
+    }
+    console.log(processList.value, 'ppppppppp')
   } catch (e: any) {
-    setTimeout(() => rotationResults(processId), 1500)
   }
 
 }
@@ -154,16 +198,29 @@ onMounted(() => {
   // rotationResults(10)
 })
 
-function checkThis(item: any) {
-  const {uid} = item
-  const idx = checkedImg.value.findIndex((i: string) => i === uid)
-  if (idx > -1) {
-    checkedImg.value.splice(idx, 1)
-  } else checkedImg.value.push(uid)
+function checkThis(list: Array<any>, idx: number) {
+  const fileId = list[idx]?.fileId || ''
+  const i: number = checkedImg.value.findIndex((t: string) => t === fileId)
+  if (i > -1) {
+    checkedImg.value.splice(i, 1)
+  } else checkedImg.value.push(fileId)
 }
 
-function perviewCurrent(item: any) {
+function checkedStatus(item: any, idx: number) {
+  const {processedFileList} = item
+  return checkedImg.value.includes(processedFileList[idx]?.fileId) || false
+}
+
+function perviewCurrent(item: any, n: number) {
+  const {originalFileUrl, thumbnailFileUrl, processedFileList} = item
+  perviewObj.value = {originalFileUrl, thumbnailFileUrl, processedFileList, index: n}
   open.value = true
+}
+
+function perviewNext(type: boolean) {
+  const {index, processedFileList} = perviewObj.value
+  if (type && index < processedFileList.length - 1) perviewObj.value.index += 1
+  else if (!type && index !== 0) perviewObj.value.index -= 1
 }
 
 function handleOk(type: number) {
@@ -182,6 +239,10 @@ function handleOk(type: number) {
     display: flex;
     font-size: 16px;
     margin-bottom: 12px;
+
+    .down_load_btn {
+      margin-left: 24px;
+    }
 
     &_dec {
       font-size: 14px;
@@ -213,22 +274,27 @@ function handleOk(type: number) {
       .task_date {
         font-size: 14px;
         color: #333333;
-        margin-bottom: 24px;
+        margin-bottom: 12px;
 
         .ant-btn {
           margin-left: 24px;
+        }
+
+        &.process_fail {
+          color: #ff4d4f;
         }
       }
 
       .result_list_box {
         display: flex;
         align-items: center;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         flex-wrap: wrap;
 
         &_item {
           margin: 0 12px 12px 0;
           width: 200px;
+          min-height: 200px;
           position: relative;
           overflow: hidden;
 
@@ -369,7 +435,7 @@ function handleOk(type: number) {
       }
 
       .sec-img {
-        position: relative;
+        //position: relative;
 
         .ant-image {
           width: 100%;
@@ -402,6 +468,10 @@ function handleOk(type: number) {
         font-size: 36px;
         //color: #7cb305;
         color: #999999;
+
+        &.checked {
+          color: #52c41a;
+        }
       }
     }
   }

@@ -5,6 +5,7 @@
       <div class="img_list">
         <div class="img_item" v-for="(it,ix) in item.list" :key="it" @click='changeToFirst(idx,ix)'>
           <a-image :src="it.avatarUrl" :preview="false" :width="200"></a-image>
+          <div class="model_item_name">{{it.modelName}}</div>
         </div>
       </div>
     </div>
@@ -72,6 +73,11 @@ function changeToFirst(idx: number, ix: number) {
 
       .img_item {
         margin: 0 5px 5px 0;
+        &_name{
+          font-size: 14px;
+          line-height: 20px;
+          text-align: center;
+        }
       }
 
       :deep(.ant-image) {

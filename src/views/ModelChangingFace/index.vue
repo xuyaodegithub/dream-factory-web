@@ -52,7 +52,8 @@
                 <RightCircleOutlined/>
               </template>
               <div v-for='(item,idx) in defaultImgList' :key='idx'>
-                <a-image :src='item.avatarUrl' :preview='false' :fallback="fallback" :width='300'></a-image>
+                  <a-image :src='item.avatarUrl' :preview='false' :fallback="fallback" :width='300'></a-image>
+                  <div class="model_item_name">{{item.modelName}}</div>
               </div>
             </a-carousel>
           </div>
@@ -164,12 +165,9 @@ const moveImgList = computed(() => {
   return imgList.value.slice(9)
 })
 onBeforeMount(async () => {
-  setTimeout(()=>{
-    leftLoading.value=false
-  },3000)
   if (!loginStatus.value) return
   const {data: {items = []}} = await initModelsList({})
-  imgList.value = Array.from({length: 20}).fill(items[0])
+  imgList.value = items
   leftLoading.value=false
 })
 
@@ -341,11 +339,11 @@ async function uploadImgs({file}: any) {
     .select_model {
       margin-top: 12px;
       padding: 10px 36px;
-      max-height: 500px;
+      max-height: 550px;
       overflow: hidden;
 
       :deep(.ant-carousel) {
-        padding: 12px 0;
+        padding: 12px 0 0 0 ;
       }
 
       .title_dec {
@@ -362,6 +360,12 @@ async function uploadImgs({file}: any) {
       :deep(.ant-image) {
         display: block;
         margin: 0 auto;
+      }
+      .model_item_name{
+        font-size: 14px;
+        text-align: center;
+        color: #333333;
+        line-height: 20px;
       }
     }
 

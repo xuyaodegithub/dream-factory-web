@@ -1,5 +1,5 @@
 <template>
-    <a-modal :open="open" @ok="handleOk" class="dia-container" :width="850" @cancel='close' :footer="null">
+    <a-modal :open="open" class="dia-container" :width="850" @cancel='close' :footer="null">
         <template #title>
             <a-space>
                 <span class="dia-title">算力充值</span>
@@ -41,11 +41,6 @@ const props: any = defineProps({
     close: Function
 });
 const emit = defineEmits(['update:open']);
-function handleOk(e: MouseEvent) {
-    console.log(e);
-    //dialogOpen = false;
-    props.close()
-};
 
 const packageInfos = ref<PackageInfo[]>([]);
 // 从后端获取套餐数据

@@ -1,46 +1,48 @@
 <template>
-    <div class="card-container">
-        <div class="package-name">{{ info.name }}</div>
-        <div class="package-price">{{ info.price }}元</div>
-        <div class="package-content">算力值{{ info.price }}元，可生成{{ info.price }}张图片</div>
-    </div>
+  <div :class="{ 'card-container': true, active }">
+    <div class="package-name">{{ info.skuName }}</div>
+    <div class="package-price">{{ info.unitPrice }}元</div>
+    <div class="package-content">{{ info.description }}</div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { PackageInfo } from '@/types';
-import { PropType } from 'vue';
 const props = defineProps({
-    info: {
-        type: Object as PropType<PackageInfo>,
-        require: true,
-    }
+  info: {
+    type: Object,
+    require: true
+  },
+  active: Boolean
 })
-
 </script>
 
 <style lang="less">
 .card-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 15px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: fit-content;
+  cursor: pointer;
+  &.active {
+    background-color: rgb(160, 207, 255);
+  }
 
-    .package-name {
-        font-size: 12px;
-    }
+  .package-name {
+    font-size: 12px;
+  }
 
-    .package-price {
-        font-size: 18px;
-        line-height: 44px;
-        font-weight: 700;
-    }
+  .package-price {
+    font-size: 18px;
+    line-height: 44px;
+    font-weight: 700;
+  }
 
-    .package-content {
-        font-size: 12px;
-        color: #999;
-    }
+  .package-content {
+    font-size: 12px;
+    color: #666;
+  }
 }
 </style>

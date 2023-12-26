@@ -13,14 +13,14 @@ export const initModelsList = (payload: any) => {
 }
 //订单列表
 export const initOrderlList = (payload: any) => {
-  return get('/api/v1/scroll-orders', payload)
+  return post('/api/v1/scroll-orders', payload)
 }
 //商品列表
 export const initSkusList = (payload: any) => {
   return get('/api/v1/list-skus', payload)
 }
 //商品下单
-export const initPlaceOrder = (payload: any) => {
+export const initPayOrder = (payload: any) => {
   return post('/api/v1/place-order', payload)
 }
 //支付订单

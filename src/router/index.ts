@@ -50,6 +50,12 @@ export const routes: any = [
         component: () => import('@/views/HistoryChange/index.vue'),
         hidden: true
       },
+      {
+        path: 'payOrder',
+        name: '支付页面',
+        component: () => import('@/views/BuyingCenter/payOrder.vue'),
+        hidden: true
+      },
     ]
   },
 ]

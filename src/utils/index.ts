@@ -6,8 +6,8 @@ import {userInfo} from "@/stores";
 const [TokenKey] = ['accessToken'];
 
 export function getToken() {
-  const {userInfo:user}:any = userInfo()
-  return `Bearer ${user.token}`
+  const accessToken = window.localStorage.getItem(TokenKey)
+  return `Bearer ${accessToken}`
 }
 export function getTenant() {
   const {userInfo:user}:any = userInfo()

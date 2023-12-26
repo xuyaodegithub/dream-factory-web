@@ -4,7 +4,7 @@
       <img src='@/assets/images/logo.png' alt='LOGO'/>
     </div>
     <a-menu v-model:selectedKeys='current' theme='dark' mode='horizontal' class='menu-styles'>
-      <a-menu-item v-for='navItem in routesList' :key='navItem.path'>
+      <a-menu-item v-for='navItem in routesList' :key='`/${navItem.path}`'>
         <router-link :to='navItem.path'>{{ navItem.name }}</router-link>
       </a-menu-item>
     </a-menu>
@@ -63,7 +63,7 @@ const menuItems = computed(() => {
 })
 
 function getLogin() {
-  guard.startWithRedirect();
+  guard.startWithRedirect({scope:'openid profile email phone address offline_access'});
 }
 
 async function logout() {

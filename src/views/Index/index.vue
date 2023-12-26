@@ -8,7 +8,7 @@ import {
 import {RouterView} from 'vue-router'
 import NavBar from '@/components/NavBar/index.vue'
 import {userInfo} from "@/stores";
-import {useGuard} from '@authing/guard-vue3'
+import {useGuard,AuthenticationClient} from '@authing/guard-vue3'
 import {getLoginState} from "@/authingConfig";
 import {initTenants, initBillings} from '@/services'
 const userStore: any = userInfo()
@@ -16,13 +16,14 @@ const showContent = ref(false)
 const guard = useGuard()
 onMounted(async () => {
   const loginStatus = await getLoginState()
-  // const {data} = await initTenants({})
-  // const authenticationClient: any = await guard.getAuthClient()
-  // const res = await authenticationClient.getAccessTokenByIdToken({
+  // const authClient: AuthenticationClient = await guard.getAuthClient()
+  // const ref = await authClient.getNewAccessTokenByRefreshToken('')
+  // console.log(ref,'pppp')
+  // const res = await authClient.getAccessTokenByIdToken({
   //   // 控制台 -> 自建应用 -> 应用配置 -> 认证配置 -> 登录回调 URL
   //   redirectUri: 'http://dev.dreamher.cn:8080/callback',
   //   // 登录成功后，从用户信息中获取到的 ID Toten
-  //   idToken: userStore.userStore?.token
+  //   idToken: userStore.userInfo?.token
   // })
   // console.log('getAccessTokenByIdToken: ', res)
   //如果登录了就获取余额 和 租户信息

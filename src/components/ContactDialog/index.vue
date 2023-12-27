@@ -71,7 +71,7 @@ const customizedRequirements = ref([
 
   .span-strong {
     font-size: 22px;
-    fonr-weight: 600;
+    font-weight: 600;
     color: #d8a04e;
   }
 

@@ -368,7 +368,7 @@ async function uploadImgs({file}: any) {
         font-size: 14px;
         text-align: center;
         color: #333333;
-        line-height: 20px;
+        line-height: 36px;
       }
     }
 

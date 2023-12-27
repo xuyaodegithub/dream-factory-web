@@ -5,7 +5,7 @@
     <div class='history_list_list'>
       <a-card hoverable style='width: 19%' v-for='item in list' :key='item.processId' @click='openDetail(item)'>
         <a-card-meta :title='`${item.processName}：${formatDate(item.startTime)}`'>
-          <template #description>费用：{{ item.pay }}算力</template>
+          <template #description>费用：{{ item.price }}算力</template>
         </a-card-meta>
         <template #cover>
           <img alt='example' :src='item.originalImageUrls'/>

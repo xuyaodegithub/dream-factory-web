@@ -7,10 +7,12 @@
 </template>
 
 <script setup lang="ts">
+import {defineProps} from 'vue'
 const props = defineProps({
   info: {
     type: Object,
-    require: true
+    require: true,
+    default:()=>({skuName:'',unitPrice:0,description:''})
   },
   active: Boolean
 })

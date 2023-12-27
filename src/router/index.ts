@@ -51,9 +51,9 @@ export const routes: any = [
         hidden: true
       },
       {
-        path: 'payOrder',
+        path: 'paySuccess',
         name: '支付页面',
-        component: () => import('@/views/BuyingCenter/payOrder.vue'),
+        component: () => import('@/views/BuyingCenter/paySuccess.vue'),
         hidden: true
       },
     ]

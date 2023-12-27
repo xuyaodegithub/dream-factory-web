@@ -8,7 +8,7 @@ import {
 import {RouterView} from 'vue-router'
 import NavBar from '@/components/NavBar/index.vue'
 import {userInfo} from "@/stores";
-import {useGuard,AuthenticationClient} from '@authing/guard-vue3'
+import {useGuard} from '@authing/guard-vue3'
 import {getLoginState} from "@/authingConfig";
 import {initTenants, initBillings} from '@/services'
 const userStore: any = userInfo()

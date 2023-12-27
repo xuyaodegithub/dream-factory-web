@@ -48,3 +48,16 @@ export const getProcessIdImgDownUrl = (payload: any) => {
   const {processId, taskId, fileId,rate} = payload
   return put(`/api/v1/process/${processId}/task/${taskId}/file/${fileId}`, {rate})
 }
+//支付待支付订单
+export const payOrderByMyOrder = (payload: any) => {
+  const {orderId} = payload
+  return get(`/api/v1/get-payment-form/${orderId}`,{})
+}
+//获取历史记录
+export const getHistoryFace = (payload: any) => {
+  return post(`/api/v1/scroll-processes`,payload)
+}
+//获取历史记录
+export const getScrollToken = (payload: any) => {
+  return post(`/api/v1/scroll-tokens`,payload)
+}

@@ -1,77 +1,57 @@
 <template>
   <main class='history_list'>
+    <div class="back-to" @click="router.go(-1)"><LeftOutlined /> 返回</div>
     <div class='history_list_title'>历史记录</div>
     <div class='history_list_list'>
-      <a-card hoverable style='width: 19%' v-for='item in list' :key='item.name' @click='openDetail(item)'>
-        <a-card-meta :title='`${item.name}：${formatDate(item.time)}`'>
+      <a-card hoverable style='width: 19%' v-for='item in list' :key='item.processId' @click='openDetail(item)'>
+        <a-card-meta :title='`${item.processName}：${formatDate(item.startTime)}`'>
           <template #description>费用：{{ item.pay }}算力</template>
         </a-card-meta>
         <template #cover>
-          <img alt='example' :src='item.img' />
+          <img alt='example' :src='item.originalImageUrls'/>
         </template>
       </a-card>
+      <a-empty v-if="!total" description="暂无历史记录"/>
     </div>
+    <a-config-provider :locale="zhCN">
+    <a-pagination v-model:current="pageIndex" :total="total" v-if="!!total"/>
+    </a-config-provider>
     <BathDownLoad :openModal='openModal' :close='()=>openModal=false' :itemInfo='selectItem'/>
   </main>
 </template>
 
 <script setup lang='ts'>
-import { ref } from 'vue'
+import {ref, onMounted} from 'vue'
+import {useRouter} from "vue-router";
 import {formatDate} from '@/config/formatDate'
+import {getHistoryFace} from '@/services'
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import {LeftOutlined} from '@ant-design/icons-vue'
 const openModal = ref(false)
 const selectItem = ref({})
-const a = [
-  { name: '任务1', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务2', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务3', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务4', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务5', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() },
-  { name: '任务6', pay: 4, img: new URL('@/assets/carouse/carouse1.png', import.meta.url).href, time: Date.now() }
-]
-const list = ref(a)
-function openDetail(item:any){
-  console.log(item,'p[p[')
-  selectItem.value=item
-  openModal.value=true
+const list = ref<any[]>([])
+const pageSize = ref(10)
+const pageIndex = ref(1)
+const total = ref(0)
+const router=useRouter()
+function openDetail(item: any) {
+  console.log(item, 'p[p[')
+  selectItem.value = item
+  openModal.value = true
 }
 
+async function initList() {
+  const ppayload = {
+    pageSize: pageSize.value,
+    pageIndex: pageIndex.value
+  }
+  const {data: {items, totalCount}} = await getHistoryFace(ppayload)
+  list.value = items
+  total.value = totalCount || 0
+}
+onMounted(()=>{
+  initList()
+})
 </script>
 
 <style scoped lang='less'>
@@ -81,6 +61,13 @@ function openDetail(item:any){
   flex-direction: column;
   height: 100%;
   background-color: #ffffff;
+  position: relative;
+  .back-to{
+    position: absolute;
+    left: 24px;
+    top: 16px;
+    cursor: pointer;
+  }
 
   &_title {
     font-size: 16px;
@@ -94,10 +81,25 @@ function openDetail(item:any){
     display: flex;
     flex-wrap: wrap;
     padding: 12px;
+    min-height: 300px;
+    position: relative;
 
     .ant-card {
       margin: 0 12px 12px 0;
     }
+    .ant-empty{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+    }
+  }
+  :deep(.ant-pagination-item-link){
+    display: flex;
+    align-items: center;
+  }
+  .ant-pagination{
+    text-align: right;
   }
 }
 </style>

@@ -27,7 +27,14 @@
       <div class="payment-text">
         付款金额：<span class="payment-amount">{{ accPrice }}</span>
       </div>
-      <a-button type="primary" class="to-pay-btn" size="large" @click="toPay">去支付</a-button>
+      <a-button
+        type="primary"
+        class="to-pay-btn"
+        size="large"
+        @click="toPay"
+        :disabled="!!htmlContent"
+        >去支付</a-button
+      >
       <div class="alipay-tip">
         <AlipayCircleOutlined
           :style="{ fontSize: '24px', color: '#6493e0', verticalAlign: 'middle' }"
@@ -43,15 +50,18 @@
         <li>充值成功后，可在【我的订单】中查看充值明细，并申请开票。</li>
       </ul>
     </div>
+    <div id="htmlContent" v-html="htmlContent"></div>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, onMounted, computed } from 'vue'
+import { defineProps, ref, onMounted, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { AlipayCircleOutlined } from '@ant-design/icons-vue'
 import PackageCard from './PackageCard.vue'
-import { initSkusList } from '@/services'
+import { initSkusList, initPayOrder } from '@/services'
+import { message } from 'ant-design-vue'
+
 const router = useRouter()
 const props: any = defineProps({
   open: {
@@ -60,12 +70,13 @@ const props: any = defineProps({
   },
   close: Function
 })
-const selectIdx = ref(0)
+const selectIdx = ref<any>('')
+const htmlContent = ref('')
 const packageInfos = ref<any[]>([])
 //当前所选套餐金额
 const accPrice = computed(() => {
-  const item = packageInfos.value[selectIdx.value]
-  return item.unitPrice
+  const item = packageInfos.value[selectIdx.value] || {}
+  return item.unitPrice || 0
 })
 // 从后端获取套餐数据
 const getPackageIfos = async () => {
@@ -74,7 +85,7 @@ const getPackageIfos = async () => {
     const {
       data: { items }
     } = await initSkusList({})
-    packageInfos.value = [...items, ...items]
+    packageInfos.value = items
     // 对返回的数据进行处理
   } catch (error) {
     console.error('API 请求出错：', error)
@@ -82,9 +93,18 @@ const getPackageIfos = async () => {
   }
 }
 async function toPay() {
+  if (selectIdx.value === '') return message.warning('请先选择套餐')
   const item = packageInfos.value[selectIdx.value]
   const { skuId } = item
-  router.push(`/payOrder?skuId=${skuId}`)
+  const {
+    data: { orderId, qrcodeFormStr }
+  } = await initPayOrder({ skuList: [{ skuId: skuId, skuCnt: 1 }] })
+  htmlContent.value = qrcodeFormStr
+  await nextTick()
+  message.loading({ content: () => '正在前往支付，请稍后', duration: 1500 })
+  setTimeout(() => {
+    document.forms[0].submit()
+  }, 1500)
 }
 onMounted(async () => {
   getPackageIfos()

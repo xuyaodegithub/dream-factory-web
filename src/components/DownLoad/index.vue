@@ -2,11 +2,11 @@
   <a-modal :open='downShow' title='批量下载图片' :footer='null' @cancel='close' class='down_dialog' width='500px'>
     <div class='all_replace'>
       <label>下载全部替换图片</label>
-      <a-button type='primary' @click='handleOk(1)'>下载</a-button>
+      <a-button type='primary' @click='downLoad(1)'>下载</a-button>
     </div>
     <div class='all_img'>
       <label>下载已认可图片</label>
-      <a-button type='primary' @click='handleOk(2)'>下载</a-button>
+      <a-button type='primary' @click='downLoad(2)'>下载</a-button>
     </div>
     <div class='down_dec'>
       通过压缩包形式下载图片，已认可的图片为预览图片时点击“认可这张图”
@@ -22,7 +22,9 @@ const props: any = defineProps({
   close: Function,
   handleOk: Function
 })
-
+function downLoad(k:number){
+  props.handleOk && props.handleOk(k)
+}
 </script>
 
 <style lang='less'>

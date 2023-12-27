@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import {defineProps,defineEmits} from 'vue';
+import {defineProps, defineEmits} from 'vue';
 import {CheckCircleOutlined} from '@ant-design/icons-vue';
 import {ref} from 'vue';
 
@@ -39,7 +39,11 @@ interface CardContent {
 }
 
 const props = defineProps({
-  cardContent: Object
+  cardContent: {
+    required: true,
+    type: Object,
+    default: () => ({subscriptionId: 1, subscriptionName: '',butootText:''})
+  }
 });
 
 const showModal = () => {

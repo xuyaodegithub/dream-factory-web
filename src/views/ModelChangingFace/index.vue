@@ -52,8 +52,8 @@
                 <RightCircleOutlined/>
               </template>
               <div v-for='(item,idx) in defaultImgList' :key='idx'>
-                  <a-image :src='item.avatarUrl' :preview='false' :fallback="fallback" :width='300'></a-image>
-                  <div class="model_item_name">{{item.modelName}}</div>
+                <a-image :src='item.avatarUrl' :preview='false' :fallback="fallback" :width='300'></a-image>
+                <div class="model_item_name">{{ item.modelName }}</div>
               </div>
             </a-carousel>
           </div>
@@ -64,7 +64,7 @@
             <a-popover placement='rightBottom'>
               <template #title>
                 <div class='concat_us'>更多模特<span class='concat_us_dec'>（想要专属模特?请联系商务定制）,<a-button
-                    type='link' size='small'>立即联系</a-button></span>
+                    type='link' size='small' @click="()=>openContactDialog=true">立即联系</a-button></span>
                 </div>
               </template>
               <template #content>
@@ -97,6 +97,7 @@
     <div class='right_perview'>
       <RightContent ref='rightContent' :resultInfo='resultInfo'/>
     </div>
+    <ContactDialog :open="openContactDialog" :close="() => (openContactDialog = false)"/>
   </main>
 </template>
 
@@ -119,7 +120,7 @@ import {userInfo} from "@/stores";
 import {uploadImg} from "@/services";
 import {fallback} from '@/config'
 
-const imgList = ref([])
+const imgList: any = ref([])
 const fileList: any = ref([])
 const timer: any = ref(null)
 const modelActive = ref<number>(0)
@@ -129,6 +130,7 @@ const modelSmile = ref(false)
 const leftLoading = ref(true)
 const resultInfo = reactive<any>({list: [], number: pictureNumer.value, modelSmile: false, modelId: ''})
 const rightContent: any = ref(null)
+const openContactDialog: any = ref(false)
 //是否全部上传成功
 const allSuccess = computed(() => {
   const {value} = fileList
@@ -168,7 +170,7 @@ onBeforeMount(async () => {
   if (!loginStatus.value) return
   const {data: {items = []}} = await initModelsList({})
   imgList.value = items
-  leftLoading.value=false
+  leftLoading.value = false
 })
 
 function deleteFiles() {
@@ -343,7 +345,7 @@ async function uploadImgs({file}: any) {
       overflow: hidden;
 
       :deep(.ant-carousel) {
-        padding: 12px 0 0 0 ;
+        padding: 12px 0 0 0;
       }
 
       .title_dec {
@@ -361,7 +363,8 @@ async function uploadImgs({file}: any) {
         display: block;
         margin: 0 auto;
       }
-      .model_item_name{
+
+      .model_item_name {
         font-size: 14px;
         text-align: center;
         color: #333333;

@@ -5,7 +5,7 @@
       <div class="img_list">
         <div class="img_item" v-for="(it,ix) in item.list" :key="it" @click='changeToFirst(idx,ix)'>
           <a-image :src="it.avatarUrl" :preview="false" :width="200"></a-image>
-          <div class="model_item_name">{{it.modelName}}</div>
+          <div class="model_item_name">{{ it.modelName }}</div>
         </div>
       </div>
     </div>
@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, computed} from 'vue'
+import {defineProps, computed} from 'vue'
 
 const {changeFirstImg, moveImgList}: any = defineProps({
   changeFirstImg: Function,
@@ -22,15 +22,15 @@ const {changeFirstImg, moveImgList}: any = defineProps({
 //按年龄分类
 const moveModels = computed(() => {
   const map: any = [
-    {label: '1岁-10岁', min: 0, max: 10, list: []},
-    {label: '11岁-20岁', min: 11, max: 20, list: []},
-    {label: '21岁-30岁', min: 21, max: 30, list: []},
-    {label: '31岁-40岁', min: 31, max: 40, list: []},
-    {label: '其他', min: 41, max: 1000, list: []},
+    {label: '婴幼儿', min: 0, max: 10, list: [], ageRange: 'INFANT'},
+    {label: '儿童', min: 11, max: 20, list: [], ageRange: 'CHILD'},
+    {label: '成人', min: 21, max: 30, list: [], ageRange: 'ADULT'},
+    {label: '老年人', min: 31, max: 40, list: [], ageRange: 'SENIOR'},
+    {label: '其他', min: 41, max: 1000, list: [], ageRange: ''},
   ]
   return map.map((item: any) => {
-    const {min, max, list} = item
-    const l = moveImgList.filter((i: any) => +i.age >= min && +i.age <= max)
+    const {ageRange, list} = item
+    const l = moveImgList.filter((i: any) => i.ageRange === ageRange)
     return {
       ...item,
       list: [...list, ...l]
@@ -73,7 +73,8 @@ function changeToFirst(idx: number, ix: number) {
 
       .img_item {
         margin: 0 5px 5px 0;
-        &_name{
+
+        &_name {
           font-size: 14px;
           line-height: 20px;
           text-align: center;

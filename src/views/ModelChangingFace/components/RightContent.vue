@@ -114,7 +114,7 @@ const checkedImg: any = ref([])
 const open: any = ref(false)
 const downShow: any = ref(false)
 const processList: any = ref([])
-const perviewObj = ref({
+const perviewObj:any = ref({
   originalFileUrl: '',
   thumbnailFileUrl: '',
   processedFileList: [],
@@ -128,7 +128,7 @@ const taskUids = computed(() => {
 })
 //当前预览图片是否认可状态
 const perviewChecked = computed(() => {
-  const {processedFileList, index} = perviewObj.value
+  const {processedFileList, index}:any = perviewObj.value
 
   return processedFileList.length ? checkedImg.value.includes(processedFileList[index]?.fileId) : false
 })
@@ -177,7 +177,7 @@ async function rotationResults(processId: string | number) {
     const currIdx = processList.value.findIndex(({processId: id}: any) => id === processId)
     const {list = []} = processList.value[currIdx]
     resList.forEach((item: any) => {
-      const {baseFile: {fileId, originalFileUrl, thumbnailFileUrl} = {}, processedFileList = []} = item
+      const {baseFile: {fileId='', originalFileUrl='', thumbnailFileUrl=''} = {}, processedFileList = []}:any = item
       const currfileIdx = list.findIndex(({fileId: fId}: any) => fId === fileId)
       if (currfileIdx > -1) {
         list[currfileIdx] = {...list[currfileIdx], originalFileUrl, thumbnailFileUrl, processedFileList}

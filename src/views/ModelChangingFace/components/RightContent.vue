@@ -93,7 +93,7 @@ import {
   EyeOutlined, CheckCircleOutlined
 } from '@ant-design/icons-vue'
 import DownLoad from '@/components/DownLoad/index.vue'
-import {commitProcess, rotationProcessResult, getImgDownUrl, getProcessIdImgDownUrl} from '@/services'
+import {commitProcess, rotationProcessResult} from '@/services'
 import {fallback} from '@/config'
 //processStatus PENDING - 排队中 PROCESSING - 处理中 FAILED - 已失败 SUCCEED - 已完成
 

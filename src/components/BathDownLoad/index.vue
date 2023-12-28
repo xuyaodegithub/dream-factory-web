@@ -1,12 +1,10 @@
 <template>
   <a-modal :open='openModal' :title="title" :footer='null' @cancel='close' class='down_dialog' width='800px'>
     <div class='all_replace'>
-      <label>下载全部替换图片</label>
-      <a-button type='primary' @click='downLoad(1)'>下载</a-button>
+      <a-button type='primary' @click='downLoad(1)'>批量下载</a-button>
     </div>
     <div class='all_img'>
-      <label>下载已认可图片</label>
-      <a-button type='primary' @click='downLoad(2)'>下载</a-button>
+
     </div>
     <div class='down_dec'>
       通过压缩包形式下载图片，已认可的图片为预览图片时点击“认可这张图”
@@ -15,9 +13,9 @@
 </template>
 
 <script setup lang='ts'>
-import { defineProps, computed } from 'vue'
+import { defineProps, computed,onMounted } from 'vue'
 import { formatDate } from '@/config/formatDate'
-
+import {rotationProcessResult} from '@/services'
 const props: any = defineProps({
   openModal: Boolean,
   itemInfo: Object,
@@ -25,12 +23,19 @@ const props: any = defineProps({
   handleOk:Function
 })
 const title = computed(() => {
-  const {name,time} =props.itemInfo
-   return  `${name}：${formatDate(time)}`
+  const {processName,startTime} =props.itemInfo
+   return  `${processName}：${formatDate(startTime)}`
 })
 function downLoad(k:number){
   props.handleOk && props.handleOk(k)
 }
+onMounted(async ()=>{
+  // const {processId = ''} = props?.itemInfo || {}
+  // console.log(processId,'processId')
+  // if(processId){
+  //   const {data:{baseFile:{originalFileUrl,thumbnailFileUrl}={},}}:any = await rotationProcessResult(processId)
+  // }
+})
 </script>
 
 <style lang='less'>
@@ -43,6 +48,8 @@ function downLoad(k:number){
     color: #333333;
     padding: 12px 0;
     align-items: center;
+    max-height: 500px;
+    overflow: auto;
 
     label {
       margin-right: 24px;

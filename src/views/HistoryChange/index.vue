@@ -16,7 +16,7 @@
     <a-config-provider :locale="zhCN">
     <a-pagination v-model:current="pageIndex" :total="total" v-if="!!total"/>
     </a-config-provider>
-    <BathDownLoad :openModal='openModal' :close='()=>openModal=false' :itemInfo='selectItem'/>
+    <BathDownLoad  v-if="openModal" :openModal='openModal' :close='()=>openModal=false' :itemInfo='selectItem'/>
   </main>
 </template>
 

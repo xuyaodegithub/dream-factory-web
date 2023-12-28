@@ -1,16 +1,12 @@
-<script setup lang='ts'>
-import {
-  onMounted,
-  onBeforeMount,
-  ref,
-  reactive
-} from 'vue'
-import {RouterView} from 'vue-router'
+<script setup lang="ts">
+import { onMounted, onBeforeMount, ref, reactive } from 'vue'
+import { RouterView } from 'vue-router'
 import NavBar from '@/components/NavBar/index.vue'
-import {userInfo} from "@/stores";
-import {useGuard} from '@authing/guard-vue3'
-import {getLoginState} from "@/authingConfig";
-import {initTenants, initBillings} from '@/services'
+import { userInfo } from '@/stores'
+import { useGuard } from '@authing/guard-vue3'
+import { getLoginState } from '@/authingConfig'
+import { initTenants, initBillings } from '@/services'
+import { removeToken } from '@/utils'
 const userStore: any = userInfo()
 const showContent = ref(false)
 const guard = useGuard()
@@ -28,6 +24,7 @@ onMounted(async () => {
   // console.log('getAccessTokenByIdToken: ', res)
   //如果登录了就获取余额 和 租户信息
   if (loginStatus) await getTenantsWithBills()
+  else removeToken()
   showContent.value = true
 })
 
@@ -35,24 +32,27 @@ async function getTenantsWithBills() {
   try {
     // const [res1, res2] = await Promise.all([initTenants({}), initBillings({})])
     const res1 = await initTenants({})
-    const {data: {items}}: any = res1
-    userStore.saveUserInfo({Tenant: items[0].tenantId})
+    const {
+      data: { items }
+    }: any = res1
+    userStore.saveUserInfo({ Tenant: items[0].tenantId })
     const res2 = await initBillings({})
-    const {data: {leftTokenCount}} = res2
-    userStore.saveUserInfo({leftTokenCount})
-    console.log({leftTokenCount})
-  } catch (e) {
-  }
+    const {
+      data: { leftTokenCount }
+    } = res2
+    userStore.saveUserInfo({ leftTokenCount })
+    console.log({ leftTokenCount })
+  } catch (e) {}
 }
 </script>
 
 <template>
   <a-layout>
     <template v-if="!showContent">
-      <a-spin size="large"/>
+      <a-spin size="large" />
     </template>
     <template v-else>
-      <NavBar/>
+      <NavBar />
       <a-layout-content>
         <router-view></router-view>
       </a-layout-content>
@@ -60,7 +60,7 @@ async function getTenantsWithBills() {
   </a-layout>
 </template>
 
-<style scoped lang='less'>
+<style scoped lang="less">
 .ant-layout {
   height: 100%;
   overflow: hidden;
@@ -73,5 +73,4 @@ async function getTenantsWithBills() {
     transform: translate(-50%, -50%);
   }
 }
-
 </style>

@@ -1,40 +1,54 @@
 <template>
-  <main class='RightContent'>
-    <div class='concat_us'>
-      <div>结果预览：
-        <a-button type='primary' class='down_load_btn' size='large' @click='()=>downShow=true'>批量下载</a-button>
+  <main class="RightContent">
+    <div class="concat_us">
+      <div>
+        结果预览：
+        <a-button type="primary" class="down_load_btn" size="large" @click="downLoadImgs()"
+          >批量下载</a-button
+        >
       </div>
-      <a-button type='primary' class='view_history' size='large' @click='()=>router.push("/historyChange")'>
+      <a-button
+        type="primary"
+        class="view_history"
+        size="large"
+        @click="() => router.push('/historyChange')"
+      >
         查看历史记录
       </a-button>
     </div>
-    <div class='result_list' id="listDom">
-      <div class='empty_box' v-if='!processList.length'>
-        <a-empty description='快去左侧上传图片试试吧~'/>
+    <div class="result_list" id="listDom">
+      <div class="empty_box" v-if="!processList.length">
+        <a-empty description="快去左侧上传图片试试吧~" />
       </div>
-      <div class='not_empty_box' v-else>
-        <div class="process_list" v-for='it in processList' :key='it.processId'>
-          <div :class='{task_date:true,process_fail:it.fail}'>
+      <div class="not_empty_box" v-else>
+        <div class="process_list" v-for="it in processList" :key="it.processId">
+          <div :class="{ task_date: true, process_fail: it.fail }">
             任务时间：{{ it?.processName || formatDate(Date.now()) }}
-            <span style="margin-left: 20px;" v-if="it.fail">任务失败，或部分失败，请换一张图片试试吧。</span>
+            <span style="margin-left: 20px" v-if="it.fail"
+              >任务失败，或部分失败，请换一张图片试试吧。</span
+            >
           </div>
-          <div class='result_list_box' v-for='item in it.list' :key='item.fileId'>
-            <div class='result_list_box_item' v-for='n in it.number' :key='n'>
-              <CheckCircleOutlined v-if='!!item.processedFileList.length'
-                                   :class='{checked:checkedStatus(item,n-1)}'/>
-              <a-image :src='it.fail ? fallback : item.processedFileList[n-1].thumbnailFileUrl'
-                       @click='checkThis(item.processedFileList,n-1)'
-                       :preview='false'
-                       :width='200'
-                       v-if='!!item.processedFileList.length || it.fail'></a-image>
+          <div class="result_list_box" v-for="item in it.list" :key="item.fileId">
+            <div class="result_list_box_item" v-for="n in it.number" :key="n">
+              <CheckCircleOutlined
+                v-if="!!item.processedFileList.length"
+                :class="{ checked: checkedStatus(item, n - 1) }"
+              />
+              <a-image
+                :src="it.fail ? fallback : item.processedFileList[n - 1].thumbnailFileUrl"
+                @click="checkThis(item.processedFileList, n - 1)"
+                :preview="false"
+                :width="200"
+                v-if="!!item.processedFileList.length || it.fail"
+              ></a-image>
               <!--              //失败了不能预览-->
-              <div class='skeleton_img' v-if="!item.processedFileList.length && !it.fail">
-                <a-skeleton-image class='placeholder_img'/>
-                <a-skeleton-button active size='small' class='placeholder_button'/>
-                <div class='placeholder_text'>图片生成中，请稍后...</div>
+              <div class="skeleton_img" v-if="!item.processedFileList.length && !it.fail">
+                <a-skeleton-image class="placeholder_img" />
+                <a-skeleton-button active size="small" class="placeholder_button" />
+                <div class="placeholder_text">图片生成中，请稍后...</div>
               </div>
-              <div class='previewMask' @click.stop='perviewCurrent(item,n-1)' v-if="!it.fail">
-                <EyeOutlined/>
+              <div class="previewMask" @click.stop="perviewCurrent(item, n - 1)" v-if="!it.fail">
+                <EyeOutlined />
                 预览
               </div>
             </div>
@@ -43,58 +57,50 @@
       </div>
     </div>
     <!--    图片预览modal-->
-    <a-modal
-        v-model:open='open'
-        width='80%'
-        wrap-class-name='full-modal'
-        :footer='null'
-    >
-      <span @click="perviewNext(false)"><left-outlined/></span>
-      <a-image
-          :src='perviewObj.originalFileUrl'
-          :preview='false'>
+    <a-modal v-model:open="open" width="80%" wrap-class-name="full-modal" :footer="null">
+      <span @click="perviewNext(false)"><left-outlined /></span>
+      <a-image :src="perviewObj.originalFileUrl" :preview="false">
         <template #placeholder>
-          <a-image
-              :src="perviewObj.thumbnailFileUrl"
-              width="100%"
-              :preview="false"
-          />
+          <a-image :src="perviewObj.thumbnailFileUrl" width="100%" :preview="false" />
         </template>
       </a-image>
-      <div class='sec-img'>
-        <CheckCircleOutlined :class='{checked:perviewChecked}'/>
+      <div class="sec-img">
+        <CheckCircleOutlined :class="{ checked: perviewChecked }" />
         <a-image
-            :src='perviewObj.processedFileList[perviewObj.index].originalFileUrl'
-            width="100%"
-            :preview='false'>
+          :src="perviewObj.processedFileList[perviewObj.index].originalFileUrl"
+          width="100%"
+          :preview="false"
+        >
           <template #placeholder>
             <a-image
-                :src="perviewObj.processedFileList[perviewObj.index].thumbnailFileUrl"
-                width="100%"
-                :preview="false"
+              :src="perviewObj.processedFileList[perviewObj.index].thumbnailFileUrl"
+              width="100%"
+              :preview="false"
             />
           </template>
         </a-image>
       </div>
-      <span @click="perviewNext(true)"><right-outlined/></span>
-      <a-button type='primary' class='view_btn' @click='checkThis(perviewObj.processedFileList,perviewObj.index)'>
+      <span @click="perviewNext(true)"><right-outlined /></span>
+      <a-button
+        type="primary"
+        class="view_btn"
+        @click="checkThis(perviewObj.processedFileList, perviewObj.index)"
+      >
         {{ perviewChecked ? '取消认可' : '认可这张图' }}
       </a-button>
     </a-modal>
-    <DownLoad :downShow='downShow' :close='()=>downShow=false' :handleOk='handleOk'/>
+    <DownLoad :downShow="downShow" :close="() => (downShow = false)" :handleOk="handleOk" />
   </main>
 </template>
 
-<script setup lang='ts'>
-import {defineProps, computed, onMounted, ref, watch, nextTick} from 'vue'
-import {useRouter} from 'vue-router'
-import {formatDate} from '@/config/formatDate'
-import {
-  EyeOutlined, CheckCircleOutlined
-} from '@ant-design/icons-vue'
+<script setup lang="ts">
+import { defineProps, computed, onMounted, ref, watch, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import { formatDate } from '@/config/formatDate'
+import { EyeOutlined, CheckCircleOutlined } from '@ant-design/icons-vue'
 import DownLoad from '@/components/DownLoad/index.vue'
-import {commitProcess, rotationProcessResult} from '@/services'
-import {fallback} from '@/config'
+import { commitProcess, rotationProcessResult, getZipDownLoadUrl } from '@/services'
+import { fallback } from '@/config'
 //processStatus PENDING - 排队中 PROCESSING - 处理中 FAILED - 已失败 SUCCEED - 已完成
 
 const [PENDING, PROCESSING, FAILED, SUCCEED] = ['PENDING', 'PROCESSING', 'FAILED', 'SUCCEED']
@@ -102,57 +108,73 @@ const router = useRouter()
 const props = defineProps({
   resultInfo: {
     type: Object,
-    default: () => ({list: [], number: 4, modelSmile: false, modelId: ''})
+    default: () => ({ list: [], number: 4, modelSmile: false, modelId: '' })
   }
 })
-import {
-  LeftOutlined,
-  RightOutlined
-} from '@ant-design/icons-vue'
+import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
 
 const checkedImg: any = ref([])
 const open: any = ref(false)
 const downShow: any = ref(false)
 const processList: any = ref([])
-const perviewObj:any = ref({
+const perviewObj: any = ref({
   originalFileUrl: '',
   thumbnailFileUrl: '',
   processedFileList: [],
-  index: 0,
+  index: 0
 })
 const taskUids = computed(() => {
   return processList.value.reduce((pre: any, i: any) => {
-    const {list} = i
+    const { list } = i
     return [...pre, ...list.map((t: any) => t.uid)]
   }, [])
 })
 //当前预览图片是否认可状态
 const perviewChecked = computed(() => {
-  const {processedFileList, index}:any = perviewObj.value
+  const { processedFileList, index }: any = perviewObj.value
 
-  return processedFileList.length ? checkedImg.value.includes(processedFileList[index]?.fileId) : false
+  return processedFileList.length
+    ? checkedImg.value.includes(processedFileList[index]?.fileId)
+    : false
 })
-watch(props.resultInfo, () => {
-  createTask()
-}, {deep: true})
+const allFileIds = computed(() => {
+  return processList.value.reduce((per: Array<any>, item: any) => {
+    const { list }: any = item
+    const fileIds = list.reduce(
+      (p: any, it: any) => [...p, ...it.processedFileList.map((i: any) => i.fileId)],
+      []
+    )
+    return [...per, ...fileIds]
+  }, [])
+})
+watch(
+  props.resultInfo,
+  () => {
+    createTask()
+  },
+  { deep: true }
+)
 
 async function createTask() {
-  const {list, number, modelSmile, modelId} = props.resultInfo
-  const l = [...list].filter((i: any) => !taskUids.value.includes(i.uid)).map((item: any) => {
-    return {
-      processedFileList: [],
-      originalFileUrl: '',
-      thumbnailFileUrl: '',
-      ...item,
-    }
-  })
+  const { list, number, modelSmile, modelId } = props.resultInfo
+  const l = [...list]
+    .filter((i: any) => !taskUids.value.includes(i.uid))
+    .map((item: any) => {
+      return {
+        processedFileList: [],
+        originalFileUrl: '',
+        thumbnailFileUrl: '',
+        ...item
+      }
+    })
   if (!l.length) return
-  const task = {list: l, modelSmile, number, modelId}
+  const task = { list: l, modelSmile, number, modelId }
   startTask(task)
 }
 
 async function startTask(task: any) {
-  const {list, modelSmile, number, modelId} = task
+  const { list, modelSmile, number, modelId } = task
   const payload = {
     modelId,
     fileIdList: list.map((i: any) => i.fileId),
@@ -160,9 +182,9 @@ async function startTask(task: any) {
     copyCount: number
   }
   //开始任务
-  const {data: {processId = ''} = {}} = await commitProcess(payload)
+  const { data: { processId = '' } = {} } = await commitProcess(payload)
   if (processId) {
-    processList.value.push({...task, processId, processName: Date.now(), fail: false})
+    processList.value.push({ ...task, processId, processName: Date.now(), fail: false })
     rotationResults(processId)
     await nextTick()
     const dom: any = document.querySelector('#listDom')
@@ -173,25 +195,34 @@ async function startTask(task: any) {
 //轮训结果
 async function rotationResults(processId: string | number) {
   try {
-    const {data: {taskList: resList = [], processStatus, processName},} = await rotationProcessResult(processId)
-    const currIdx = processList.value.findIndex(({processId: id}: any) => id === processId)
-    const {list = []} = processList.value[currIdx]
+    const {
+      data: { taskList: resList = [], processStatus, processName }
+    } = await rotationProcessResult(processId)
+    const currIdx = processList.value.findIndex(({ processId: id }: any) => id === processId)
+    const { list = [] } = processList.value[currIdx]
     resList.forEach((item: any) => {
-      const {baseFile: {fileId='', originalFileUrl='', thumbnailFileUrl=''} = {}, processedFileList = []}:any = item
-      const currfileIdx = list.findIndex(({fileId: fId}: any) => fId === fileId)
+      const {
+        baseFile: { fileId = '', originalFileUrl = '', thumbnailFileUrl = '' } = {},
+        processedFileList = []
+      }: any = item
+      const currfileIdx = list.findIndex(({ fileId: fId }: any) => fId === fileId)
       if (currfileIdx > -1) {
-        list[currfileIdx] = {...list[currfileIdx], originalFileUrl, thumbnailFileUrl, processedFileList}
+        list[currfileIdx] = {
+          ...list[currfileIdx],
+          originalFileUrl,
+          thumbnailFileUrl,
+          processedFileList
+        }
       }
     })
-    processList.value[currIdx] = {...processList.value[currIdx], list, processName}
-    if (![FAILED, SUCCEED].includes(processStatus)) setTimeout(() => rotationResults(processId), 1500)
+    processList.value[currIdx] = { ...processList.value[currIdx], list, processName }
+    if (![FAILED, SUCCEED].includes(processStatus))
+      setTimeout(() => rotationResults(processId), 1500)
     if (processStatus === FAILED) {
       processList.value[currIdx].fail = true
     }
-    console.log(processList.value, 'ppppppppp')
-  } catch (e: any) {
-  }
-
+    // console.log(processList.value, 'ppppppppp')
+  } catch (e: any) {}
 }
 
 onMounted(() => {
@@ -207,29 +238,46 @@ function checkThis(list: Array<any>, idx: number) {
 }
 
 function checkedStatus(item: any, idx: number) {
-  const {processedFileList} = item
+  const { processedFileList } = item
   return checkedImg.value.includes(processedFileList[idx]?.fileId) || false
 }
 
 function perviewCurrent(item: any, n: number) {
-  const {originalFileUrl, thumbnailFileUrl, processedFileList} = item
-  perviewObj.value = {originalFileUrl, thumbnailFileUrl, processedFileList, index: n}
+  const { originalFileUrl, thumbnailFileUrl, processedFileList } = item
+  perviewObj.value = { originalFileUrl, thumbnailFileUrl, processedFileList, index: n }
   open.value = true
 }
 
 function perviewNext(type: boolean) {
-  const {index, processedFileList} = perviewObj.value
+  const { index, processedFileList } = perviewObj.value
   if (type && index < processedFileList.length - 1) perviewObj.value.index += 1
   else if (!type && index !== 0) perviewObj.value.index -= 1
 }
-
-function handleOk(type: number) {
-  console.log(type, 'type')
+function downLoadImgs() {
+  if (!allFileIds.value.length) return message.warning('当前无图片可以下载，请先去上传试试吧')
+  downShow.value = true
+}
+async function handleOk(type: number) {
+  if (type === 2 && !checkedImg.value.length) return message.warning('请先选择认可的图片')
+  //下载全部
+  const payload = {
+    fileIdList: type === 1 ? allFileIds.value : checkedImg.value
+  }
+  const data = await getZipDownLoadUrl(payload)
+  const blob = new Blob([data], { type: 'application/zip' })
+  const objurl = URL.createObjectURL(blob)
+  console.log(objurl, 'objurl')
+  const saveLink = document.createElement('a')
+  saveLink.href = objurl
+  saveLink.download = `${type === 1 ? '全部图片.zip' : '认可图片.zip'}`
+  saveLink.click()
+  URL.revokeObjectURL(objurl)
+  // window.open(data)
   downShow.value = false
 }
 </script>
 
-<style scoped lang='less'>
+<style scoped lang="less">
 .RightContent {
   height: 100%;
   display: flex;
@@ -315,7 +363,8 @@ function handleOk(type: number) {
               }
             }
 
-            .placeholder_button, .placeholder_text {
+            .placeholder_button,
+            .placeholder_text {
               position: absolute;
               left: 50%;
               bottom: 14px;
@@ -372,7 +421,7 @@ function handleOk(type: number) {
           position: absolute;
           width: 100%;
           color: #ffffff;
-          background-color: rgba(0, 0, 0, .6);
+          background-color: rgba(0, 0, 0, 0.6);
           justify-content: center;
           font-size: 14px;
           line-height: 36px;
@@ -380,7 +429,7 @@ function handleOk(type: number) {
           bottom: 0;
           z-index: 111;
           transform: translateY(100%);
-          transition: all linear .2s;
+          transition: all linear 0.2s;
           cursor: pointer;
 
           &:hover {
@@ -390,10 +439,9 @@ function handleOk(type: number) {
       }
     }
   }
-
 }
 </style>
-<style lang='less'>
+<style lang="less">
 .full-modal .ant-modal {
   top: 0 !important;
   height: 100%;
@@ -426,7 +474,8 @@ function handleOk(type: number) {
         transform: translateX(-50%);
       }
 
-      .ant-image, .sec-img {
+      .ant-image,
+      .sec-img {
         width: 48%;
 
         &:nth-child(2) {
@@ -442,7 +491,8 @@ function handleOk(type: number) {
         }
       }
 
-      .anticon-left, .anticon-right {
+      .anticon-left,
+      .anticon-right {
         font-size: 48px;
         position: absolute;
         top: 50%;

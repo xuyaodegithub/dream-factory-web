@@ -1,4 +1,4 @@
-import {post, get, upPost, put} from './http'
+import {post, get, upPost, put,postBlob} from './http'
 const base = import.meta.env.VITE_BASE_URL
 const fileBase = import.meta.env.VITE_FILE_BASE_URL
 //余额
@@ -62,4 +62,8 @@ export const getHistoryFace = (payload: any) => {
 //获取历史记录
 export const getScrollToken = (payload: any) => {
   return post(`${base}/v1/scroll-tokens`,payload)
+}
+//zip包地址
+export const getZipDownLoadUrl = (payload: any) => {
+  return postBlob(`${fileBase}/v1/download-zip-file`,payload)
 }

@@ -29,7 +29,7 @@
                 <div class="upload_befor" v-if="!allSuccess">
                   <a-progress :strokeWidth="8" :percent="progress" :showInfo="false" />
                   <span style="color: #333333">{{ progress }}%</span>
-                  <p class="loading">文件正在上传中，请稍后...</p>
+                  <p class="loading">图片正在上传中，请稍后...</p>
                 </div>
                 <div class="upload_success" v-else>
                   <PictureOutlined />
@@ -78,7 +78,7 @@
               :key="idx"
               :src="item.avatarUrl"
               :preview="false"
-              :width="90"
+              :width="80"
               :fallback="fallback"
             ></a-image>
             <a-popover placement="rightBottom">
@@ -240,11 +240,17 @@ function confirmTask() {
   resultInfo.modelId = imgList.value[modelActive.value]?.modelId || 1
 }
 
-function changeFirstImg(img: string) {
+function changeFirstImg(img: any) {
+  const { modelId } = img
   const firstImg = imgList.value[0]
+  const idx = imgList.value.findIndex((i: any) => i.modelId === modelId)
   imgList.value[0] = img
+  console.log(idx)
+  if (idx > -1) {
+    imgList.value.splice(idx, 1, firstImg)
+  }
   selectModel(0)
-  return firstImg
+  console.log(moveImgList.value, 'pppp')
 }
 
 async function uploadImgs({ file }: any) {
@@ -269,8 +275,8 @@ async function uploadImgs({ file }: any) {
   display: flex;
 
   .left_upload {
-    padding: 12px 24px;
-    width: 600px;
+    padding: 12px 0;
+    width: 540px;
     background-color: #ffffff;
     height: 100%;
     overflow: hidden;
@@ -288,6 +294,7 @@ async function uploadImgs({ file }: any) {
     .opera_content {
       flex: 1;
       overflow: auto;
+      padding: 0 24px;
     }
 
     .upload_box {

@@ -3,16 +3,9 @@
     <div class="concat_us">
       <div>
         结果预览：
-        <a-button type="primary" class="down_load_btn" size="large" @click="downLoadImgs()"
-          >批量下载</a-button
-        >
+        <a-button type="primary" class="down_load_btn" @click="downLoadImgs()">批量下载</a-button>
       </div>
-      <a-button
-        type="primary"
-        class="view_history"
-        size="large"
-        @click="() => router.push('/historyChange')"
-      >
+      <a-button type="primary" class="view_history" @click="() => router.push('/historyChange')">
         查看历史记录
       </a-button>
     </div>
@@ -184,7 +177,7 @@ async function startTask(task: any) {
   //开始任务
   const { data: { processId = '' } = {} } = await commitProcess(payload)
   if (processId) {
-    processList.value.push({ ...task, processId, processName: Date.now(), fail: false })
+    processList.value.unshift({ ...task, processId, processName: Date.now(), fail: false })
     rotationResults(processId)
     await nextTick()
     const dom: any = document.querySelector('#listDom')
@@ -476,7 +469,8 @@ async function handleOk(type: number) {
 
       .ant-image,
       .sec-img {
-        width: 48%;
+        width: 47%;
+        position: relative;
 
         &:nth-child(2) {
           margin-right: 20px;
@@ -513,7 +507,7 @@ async function handleOk(type: number) {
       .anticon-check-circle {
         position: absolute;
         top: 24px;
-        right: 24px;
+        left: 24px;
         z-index: 99;
         font-size: 36px;
         //color: #7cb305;

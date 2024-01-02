@@ -1,9 +1,14 @@
 <template>
   <main class="move_models">
-    <div v-for="(item,idx) in moveModels" :key="item.label" class="years_box">
+    <div v-for="(item, idx) in moveModels" :key="item.label" class="years_box">
       <div class="title_dec">{{ item.label }}</div>
       <div class="img_list">
-        <div class="img_item" v-for="(it,ix) in item.list" :key="it" @click='changeToFirst(idx,ix)'>
+        <div
+          class="img_item"
+          v-for="(it, ix) in item.list"
+          :key="it"
+          @click="changeToFirst(idx, ix)"
+        >
           <a-image :src="it.avatarUrl" :preview="false" :width="200"></a-image>
           <div class="model_item_name">{{ it.modelName }}</div>
         </div>
@@ -13,36 +18,37 @@
 </template>
 
 <script lang="ts" setup>
-import {defineProps, computed} from 'vue'
+import { defineProps, computed } from 'vue'
 
-const {changeFirstImg, moveImgList}: any = defineProps({
+const props: any = defineProps({
   changeFirstImg: Function,
   moveImgList: Array
 })
 //按年龄分类
 const moveModels = computed(() => {
   const map: any = [
-    {label: '婴幼儿', min: 0, max: 10, list: [], ageRange: 'INFANT'},
-    {label: '儿童', min: 11, max: 20, list: [], ageRange: 'CHILD'},
-    {label: '成人', min: 21, max: 30, list: [], ageRange: 'ADULT'},
-    {label: '老年人', min: 31, max: 40, list: [], ageRange: 'SENIOR'},
-    {label: '其他', min: 41, max: 1000, list: [], ageRange: ''},
+    { label: '婴幼儿', min: 0, max: 10, list: [], ageRange: 'INFANT' },
+    { label: '儿童', min: 11, max: 20, list: [], ageRange: 'CHILD' },
+    { label: '成人', min: 21, max: 30, list: [], ageRange: 'ADULT' },
+    { label: '老年人', min: 31, max: 40, list: [], ageRange: 'SENIOR' },
+    { label: '其他', min: 41, max: 1000, list: [], ageRange: '' }
   ]
-  return map.map((item: any) => {
-    const {ageRange, list} = item
-    const l = moveImgList.filter((i: any) => i.ageRange === ageRange)
-    return {
-      ...item,
-      list: [...list, ...l]
-    }
-  }).filter(({list}: any) => !!list.length)
-
+  return map
+    .map((item: any) => {
+      const { ageRange, list } = item
+      const l = props?.moveImgList.filter((i: any) => i.ageRange === ageRange)
+      return {
+        ...item,
+        list: [...list, ...l]
+      }
+    })
+    .filter(({ list }: any) => !!list.length)
 })
 
 function changeToFirst(idx: number, ix: number) {
   const img: string = moveModels.value[idx].list[ix]
-  const newImg = changeFirstImg(img)
-  moveModels.value[idx].list[ix] = newImg
+  props?.changeFirstImg(img)
+  // moveModels.value[idx].list[ix] = newImg
 }
 </script>
 
@@ -74,7 +80,7 @@ function changeToFirst(idx: number, ix: number) {
       .img_item {
         margin: 0 5px 5px 0;
 
-        &_name {
+        .model_item_name {
           font-size: 14px;
           line-height: 20px;
           text-align: center;

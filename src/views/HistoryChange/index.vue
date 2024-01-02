@@ -5,7 +5,7 @@
     <div class="history_list_list">
       <a-card
         hoverable
-        style="width: 19%"
+        style="width: 13%"
         v-for="item in list"
         :key="item.processId"
         @click="openDetail(item)"
@@ -87,6 +87,7 @@ onMounted(() => {
   height: 100%;
   background-color: #ffffff;
   position: relative;
+  overflow: auto;
   .back-to {
     position: absolute;
     left: 24px;
@@ -102,11 +103,11 @@ onMounted(() => {
   }
 
   &_list {
-    overflow: auto;
+    // overflow: auto;
     display: flex;
     flex-wrap: wrap;
     padding: 12px;
-    min-height: 300px;
+    // min-height: 300px;
     position: relative;
 
     .ant-card {

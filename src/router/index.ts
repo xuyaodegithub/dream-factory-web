@@ -19,7 +19,8 @@ export const routes: any = [
       {
         path: 'index',
         name: '首页',
-        component: () => import('../views/Home/index.vue')
+        component: () => import('../views/Home/index.vue'),
+        meta:{showRecord:true}
       },
       {
         path: 'changingFace',

@@ -37,10 +37,8 @@
                     <CheckCircleOutlined />
                     成功上传 <span>{{ fileList.length }}</span> 张图片
                   </div>
-                  <DeleteOutlined
-                    style="font-size: 18px; color: #ff4d4f"
-                    @click.stop="deleteFiles"
-                  />
+                  <EyeOutlined @click.stop="previewImg" />
+                  <DeleteOutlined @click.stop="deleteFiles" />
                 </div>
               </div>
             </a-upload-dragger>
@@ -81,7 +79,7 @@
               :width="80"
               :fallback="fallback"
             ></a-image>
-            <a-popover placement="rightBottom">
+            <a-popover placement="rightBottom" trigger="click">
               <template #title>
                 <div class="concat_us">
                   更多模特<span class="concat_us_dec"
@@ -136,7 +134,8 @@ import {
   CheckCircleOutlined,
   DeleteOutlined,
   LeftCircleOutlined,
-  RightCircleOutlined
+  RightCircleOutlined,
+  EyeOutlined
 } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import RightContent from './components/RightContent.vue'
@@ -210,7 +209,7 @@ function deleteFiles() {
 }
 
 function imgUpload(fileObj: any) {
-  const loginStates = loginStatus.value
+  const loginStates = true //loginStatus.value
   if (fileList.value.length > maxLen || !loginStates) {
     // 由於是一个一个上传的  只需要最后一次提示就好
     if (timer.value) {
@@ -218,9 +217,7 @@ function imgUpload(fileObj: any) {
       timer.value = null
     }
     timer.value = setTimeout(() => {
-      message.warning(
-        `${!loginStates ? '请先登录' : '最多可以上传${maxLen}个文件，超出部分将会被忽略'}`
-      )
+      message.warning(!loginStates ? '请先登录' : `最多可以上传${maxLen}个文件，超出部分将会被忽略`)
     }, 200)
     if (!loginStates) fileList.value = []
     return
@@ -265,6 +262,16 @@ async function uploadImgs({ file }: any) {
     fileList.value[idx].uploadEnd = true
     fileList.value[idx].fileId = items[0].fileId
   }
+}
+function previewImg() {}
+
+function getBase64(file: File) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = (error) => reject(error)
+  })
 }
 </script>
 
@@ -369,9 +376,15 @@ async function uploadImgs({ file }: any) {
           color: #389e0d;
         }
 
-        .anticon-delete {
-          margin-left: auto;
+        .anticon-delete,
+        .anticon-eye {
           color: #333;
+          font-size: 18px;
+          color: #ff4d4f;
+        }
+        .anticon-eye {
+          color: #999999;
+          margin-left: auto;
         }
 
         & > span {
@@ -439,9 +452,9 @@ async function uploadImgs({ file }: any) {
         }
 
         &.last {
-          height: 90px;
-          width: 90px;
-          line-height: 90px;
+          height: 80px;
+          width: 80px;
+          line-height: 80px;
           text-align: center;
           color: #4d7bea;
           border: 2px solid #eeeeee;
@@ -470,6 +483,7 @@ async function uploadImgs({ file }: any) {
       align-items: center;
       justify-content: flex-end;
       border-top: 1px solid #eeeeee;
+      padding: 0 24px;
 
       .consumption {
         font-size: 14px;

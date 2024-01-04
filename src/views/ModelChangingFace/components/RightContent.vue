@@ -15,32 +15,40 @@
       </div>
       <div class="not_empty_box" v-else>
         <div class="process_list" v-for="it in processList" :key="it.processId">
-          <div :class="{ task_date: true, process_fail: it.fail }">
+          <div :class="{ task_date: true, process_fail: it.processStatus === FAILED }">
             任务时间：{{ it?.processName || formatDate(Date.now()) }}
-            <span style="margin-left: 20px" v-if="it.fail"
+            <span style="margin-left: 20px" v-if="it.processStatus === FAILED"
               >任务失败，或部分失败，请换一张图片试试吧。</span
             >
           </div>
           <div class="result_list_box" v-for="item in it.list" :key="item.fileId">
-            <div class="result_list_box_item" v-for="n in it.number" :key="n">
-              <CheckCircleOutlined
-                v-if="!!item.processedFileList.length"
+            <div
+              class="result_list_box_item"
+              v-for="n in it.number"
+              :key="n"
+              @click="checkThis(item.processedFileList, n - 1)"
+            >
+              <HeartOutlined
+                v-if="it.processStatus === SUCCEED"
                 :class="{ checked: checkedStatus(item, n - 1) }"
               />
               <a-image
-                :src="it.fail ? fallback : item.processedFileList[n - 1].thumbnailFileUrl"
-                @click="checkThis(item.processedFileList, n - 1)"
+                :src="imageUrlMethod(it, item, n)"
                 :preview="false"
                 :width="200"
-                v-if="!!item.processedFileList.length || it.fail"
+                v-if="[FAILED, SUCCEED].includes(it.processStatus)"
               ></a-image>
               <!--              //失败了不能预览-->
-              <div class="skeleton_img" v-if="!item.processedFileList.length && !it.fail">
+              <div class="skeleton_img" v-else>
                 <a-skeleton-image class="placeholder_img" />
                 <a-skeleton-button active size="small" class="placeholder_button" />
                 <div class="placeholder_text">图片生成中，请稍后...</div>
               </div>
-              <div class="previewMask" @click.stop="perviewCurrent(item, n - 1)" v-if="!it.fail">
+              <div
+                class="previewMask"
+                @click.stop="perviewCurrent(item, n - 1)"
+                v-if="[FAILED, SUCCEED].includes(it.processStatus)"
+              >
                 <EyeOutlined />
                 预览
               </div>
@@ -50,7 +58,7 @@
       </div>
     </div>
     <!--    图片预览modal-->
-    <a-modal v-model:open="open" width="80%" wrap-class-name="full-modal" :footer="null">
+    <a-modal v-model:open="open" width="70%" wrap-class-name="full-modal" :footer="null">
       <span @click="perviewNext(false)"><left-outlined /></span>
       <a-image :src="perviewObj.originalFileUrl" :preview="false">
         <template #placeholder>
@@ -58,15 +66,18 @@
         </template>
       </a-image>
       <div class="sec-img">
-        <CheckCircleOutlined :class="{ checked: perviewChecked }" />
+        <HeartOutlined
+          :class="{ checked: perviewChecked }"
+          v-if="!!perviewObj.processedFileList.length"
+        />
         <a-image
-          :src="perviewObj.processedFileList[perviewObj.index].originalFileUrl"
+          :src="perviewObj.processedFileList[perviewObj.index]?.originalFileUrl || fallback"
           width="100%"
           :preview="false"
         >
           <template #placeholder>
             <a-image
-              :src="perviewObj.processedFileList[perviewObj.index].thumbnailFileUrl"
+              :src="perviewObj.processedFileList[perviewObj.index]?.thumbnailFileUrl || fallback"
               width="100%"
               :preview="false"
             />
@@ -78,6 +89,7 @@
         type="primary"
         class="view_btn"
         @click="checkThis(perviewObj.processedFileList, perviewObj.index)"
+        v-if="!!perviewObj.processedFileList.length"
       >
         {{ perviewChecked ? '取消认可' : '认可这张图' }}
       </a-button>
@@ -90,10 +102,13 @@
 import { defineProps, computed, onMounted, ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { formatDate } from '@/config/formatDate'
-import { EyeOutlined, CheckCircleOutlined } from '@ant-design/icons-vue'
+import { EyeOutlined, CheckCircleOutlined, HeartOutlined } from '@ant-design/icons-vue'
 import DownLoad from '@/components/DownLoad/index.vue'
-import { commitProcess, rotationProcessResult, getZipDownLoadUrl } from '@/services'
+import { commitProcess, rotationProcessResult, getZipDownLoadUrl, initBillings } from '@/services'
 import { fallback } from '@/config'
+import { userInfo } from '@/stores'
+const userStore: any = userInfo()
+
 //processStatus PENDING - 排队中 PROCESSING - 处理中 FAILED - 已失败 SUCCEED - 已完成
 
 const [PENDING, PROCESSING, FAILED, SUCCEED] = ['PENDING', 'PROCESSING', 'FAILED', 'SUCCEED']
@@ -177,11 +192,16 @@ async function startTask(task: any) {
   //开始任务
   const { data: { processId = '' } = {} } = await commitProcess(payload)
   if (processId) {
-    processList.value.unshift({ ...task, processId, processName: Date.now(), fail: false })
+    processList.value.unshift({
+      ...task,
+      processId,
+      processName: Date.now(),
+      processStatus: PROCESSING
+    })
     rotationResults(processId)
-    await nextTick()
-    const dom: any = document.querySelector('#listDom')
-    dom.scrollTop = dom.scrollHeight
+    // await nextTick()
+    // const dom: any = document.querySelector('#listDom')
+    // dom.scrollTop = dom.scrollHeight
   }
 }
 
@@ -211,8 +231,9 @@ async function rotationResults(processId: string | number) {
     processList.value[currIdx] = { ...processList.value[currIdx], list, processName }
     if (![FAILED, SUCCEED].includes(processStatus))
       setTimeout(() => rotationResults(processId), 1500)
-    if (processStatus === FAILED) {
-      processList.value[currIdx].fail = true
+    if ([FAILED, SUCCEED].includes(processStatus)) {
+      processList.value[currIdx].processStatus = processStatus
+      updataBill()
     }
     // console.log(processList.value, 'ppppppppp')
   } catch (e: any) {}
@@ -267,6 +288,24 @@ async function handleOk(type: number) {
   URL.revokeObjectURL(objurl)
   // window.open(data)
   downShow.value = false
+}
+async function updataBill() {
+  const res2 = await initBillings({})
+  const {
+    data: { leftTokenCount }
+  } = res2
+  userStore.saveUserInfo({ leftTokenCount })
+}
+function imageUrlMethod(it: any, item: any, n: number) {
+  const { processStatus = '' } = it
+  const { processedFileList = [], thumbnailFileUrl = '' } = item
+  if (processStatus === FAILED) {
+    return processedFileList.length
+      ? processedFileList[n]?.thumbnailFileUrl || thumbnailFileUrl
+      : thumbnailFileUrl
+  } else {
+    return processedFileList[n]?.thumbnailFileUrl || thumbnailFileUrl
+  }
 }
 </script>
 
@@ -386,16 +425,17 @@ async function handleOk(type: number) {
             margin-right: 8px;
           }
 
-          :deep(.anticon-check-circle) {
+          :deep(.anticon-heart) {
             position: absolute;
             top: 10px;
             right: 10px;
             font-size: 28px;
             z-index: 99;
             cursor: pointer;
+            font-weight: 400;
 
             &.checked {
-              color: #52c41a;
+              color: #eb2f96;
             }
           }
         }
@@ -459,6 +499,7 @@ async function handleOk(type: number) {
       height: 100%;
       overflow: auto;
       width: 100%;
+      border-radius: 10px;
 
       .view_btn {
         position: absolute;
@@ -469,9 +510,13 @@ async function handleOk(type: number) {
 
       .ant-image,
       .sec-img {
-        width: 47%;
+        width: 45%;
         position: relative;
-
+        pointer-events: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
         &:nth-child(2) {
           margin-right: 20px;
         }
@@ -504,7 +549,7 @@ async function handleOk(type: number) {
         transform: translate(200%, -50%);
       }
 
-      .anticon-check-circle {
+      .anticon-heart {
         position: absolute;
         top: 24px;
         left: 24px;
@@ -512,9 +557,9 @@ async function handleOk(type: number) {
         font-size: 36px;
         //color: #7cb305;
         color: #999999;
-
+        font-weight: 400;
         &.checked {
-          color: #52c41a;
+          color: #eb2f96;
         }
       }
     }

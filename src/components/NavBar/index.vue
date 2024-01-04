@@ -16,11 +16,7 @@
         <a-button @click="goToBuyingCenter">购买</a-button>
         <a-button type="primary" v-if="!userMsg.phone" @click="getLogin">登录</a-button>
         <a-dropdown v-else>
-          <a-avatar size="large" class="avatar" :src="userMsg.photo">
-            <!--            <template #icon>-->
-            <!--              <UserOutlined/>-->
-            <!--            </template>-->
-          </a-avatar>
+          <a-avatar size="large" class="avatar" :src="userHead || userMsg.photo"> </a-avatar>
           <template #overlay>
             <a-menu>
               <a-menu-item
@@ -49,6 +45,7 @@ import { watch } from 'vue'
 import { routes } from '@/router/index'
 import { userInfo } from '@/stores'
 import { useGuard } from '@authing/guard-vue3'
+const userHead = new URL('@/assets/images/head_icon.jpg', import.meta.url).href
 
 const userStore: any = userInfo()
 const current = ref<string[]>(['/'])
@@ -68,7 +65,8 @@ const menuItems = computed(() => {
 })
 
 function getLogin() {
-  guard.startWithRedirect({ scope: 'openid profile email phone address offline_access' })
+  //{ scope: 'openid profile email phone address offline_access' }
+  guard.startWithRedirect()
 }
 
 async function logout() {

@@ -73,18 +73,20 @@ export const trafficKacket = [
     width: 360
   },
   {
-    title: '开始时间',
-    dataIndex: 'gmtTakeEffect',
-    key: 'gmtTakeEffect'
-  },
-  {
     title: '算力余额/算力总额',
     dataIndex: 'count',
     key: 'count'
+  },{
+    title: '开始时间',
+    dataIndex: 'gmtTakeEffect',
+    key: 'gmtTakeEffect'
   }, {
     title: '截止时间',
     dataIndex: 'gmtLoseEffect',
     key: 'gmtLoseEffect'
+  }, {
+    title: '有效期(天)',
+    key: 'validityDate',
   }, {
     title: '状态',
     key: 'status',

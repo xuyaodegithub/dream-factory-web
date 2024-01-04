@@ -3,7 +3,7 @@
  * **/
 import {userInfo} from "@/stores";
 
-const [TokenKey] = ['accessToken'];
+const [TokenKey,authingToken,userToken] = ['accessToken','_authing_token',''];
 
 export function getToken() {
   const accessToken = window.localStorage.getItem(TokenKey)
@@ -19,6 +19,7 @@ export function setToken(token: string) {
 }
 
 export function removeToken() {
+  window.localStorage.removeItem(authingToken)
   return window.localStorage.removeItem(TokenKey)
 }
 

@@ -13,7 +13,7 @@
     </div>
     <div class="all_img">
       <div class="img-item" v-for="it in list" :key="it.fileId" @click="choseThis(it)">
-        <CheckCircleOutlined :class="{ checked: checkedFileIds.includes(it.fileId) }" />
+        <HeartOutlined :class="{ checked: checkedFileIds.includes(it.fileId) }" />
         <a-image :src="it.thumbnailFileUrl" :preview="false" :width="230"></a-image>
       </div>
     </div>
@@ -25,7 +25,7 @@
 import { defineProps, computed, onMounted, ref } from 'vue'
 import { formatDate } from '@/config/formatDate'
 import { rotationProcessResult, getZipDownLoadUrl } from '@/services'
-import { CheckCircleOutlined } from '@ant-design/icons-vue'
+import { HeartOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 
 const props: any = defineProps({
@@ -95,18 +95,16 @@ onMounted(async () => {
       position: relative;
       margin: 0 12px 12px 0;
       cursor: pointer;
-      .anticon-check-circle {
+      .anticon-heart {
         position: absolute;
         font-size: 24px;
         top: 12px;
         right: 12px;
         z-index: 99;
         &.checked {
-          color: chartreuse;
+          color: #eb2f96;
         }
       }
-    }
-    .ant-image {
     }
     label {
       margin-right: 24px;

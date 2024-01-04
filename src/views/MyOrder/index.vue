@@ -8,21 +8,21 @@
     <div class="table_content">
       <a-config-provider :locale="zhCN">
         <a-table
-            :dataSource="dataSource"
-            :columns="tableHead"
-            :loading="loading"
-            :pagination="pagination"
-            @change="handleTableChange"
-            sticky
-            :locale="zhCN"
+          :dataSource="dataSource"
+          :columns="tableHead"
+          :loading="loading"
+          :pagination="pagination"
+          @change="handleTableChange"
+          sticky
+          :locale="zhCN"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="['gmtCreate', 'gmtTakeEffect','gmtLoseEffect'].includes(column.key)">
+            <template v-if="['gmtCreate', 'gmtTakeEffect', 'gmtLoseEffect'].includes(column.key)">
               <span>
                 {{ formatDate(record[column.key]) }}
               </span>
             </template>
-            <template v-else-if="['orderStatus','status'].includes(column.key)">
+            <template v-else-if="['orderStatus', 'status'].includes(column.key)">
               <span>
                 {{ orderStatusTxt(record[column.key]) }}
               </span>
@@ -32,36 +32,46 @@
                 {{ `${record.leftCount}/${record.totalCount}` }}
               </span>
             </template>
+            <template v-else-if="['validityDate'].includes(column.key)">
+              <span>
+                {{ getValidityDate(record) }}
+              </span>
+            </template>
             <template v-else-if="column.key === 'action'">
-              <div v-if="activeKey===1">
-                <a-button type="link" @click="toPay(record)" v-if="record.orderStatus==='INIT'">支付</a-button>
+              <div v-if="activeKey === 1">
+                <a-button type="link" @click="toPay(record)" v-if="record.orderStatus === 'INIT'"
+                  >支付</a-button
+                >
                 <a-button type="link" @click="toSkuPage" v-else>去购买</a-button>
               </div>
               <div v-else>
-                <a-button type="link" @click="toSkuPage">去购买</a-button>
+                <!-- //已失效才显示去购买 -->
+                <a-button type="link" v-if="record.status === 'EXPIRED'" @click="toSkuPage"
+                  >去购买</a-button
+                >
               </div>
             </template>
           </template>
           <template #emptyText>
-            <a-empty description="暂无数据"/>
+            <a-empty description="暂无数据" />
           </template>
         </a-table>
       </a-config-provider>
     </div>
-    <RechargeDialog :open="openRechargeDialog" :close="() => (openRechargeDialog = false)"/>
+    <RechargeDialog :open="openRechargeDialog" :close="() => (openRechargeDialog = false)" />
     <div class="htmlContent" v-html="htmlContent"></div>
   </main>
 </template>
 
 <script lang="ts" setup>
-import {ref, computed, onMounted, nextTick} from 'vue'
-import {formatDate} from '@/config/formatDate'
+import { ref, computed, onMounted, nextTick } from 'vue'
+import { formatDate } from '@/config/formatDate'
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import RechargeDialog from '@/components/RechargeDialog/index.vue'
-import {initOrderlList, payOrderByMyOrder, getScrollToken} from '@/services'
-import {columns, trafficKacket} from '@/config'
-import {useRouter} from 'vue-router'
-import {message} from 'ant-design-vue'
+import { initOrderlList, payOrderByMyOrder, getScrollToken } from '@/services'
+import { columns, trafficKacket } from '@/config'
+import { useRouter } from 'vue-router'
+import { message } from 'ant-design-vue'
 
 const router = useRouter()
 const loading = ref(true)
@@ -84,7 +94,7 @@ const isOrder = computed(() => {
   return activeKey.value === 1
 })
 
-function handleTableChange({current: page, pageSize: size}: any) {
+function handleTableChange({ current: page, pageSize: size }: any) {
   pageIndex.value = page
   pageSize.value = size
   initList()
@@ -98,23 +108,22 @@ async function initList() {
       pageIndex: pageIndex.value
     }
     const {
-      data: {totalCount, items}
+      data: { totalCount, items }
     } = isOrder.value ? await initOrderlList(payload) : await getScrollToken(payload)
     total.value = totalCount
     dataSource.value = items
-  } catch (e: any) {
-  }
+  } catch (e: any) {}
   loading.value = false
 }
 
 async function toPay(item: any) {
-  const {orderId} = item
+  const { orderId } = item
   const {
-    data: {qrcodeFormStr}
-  } = await payOrderByMyOrder({orderId})
+    data: { qrcodeFormStr }
+  } = await payOrderByMyOrder({ orderId })
   htmlContent.value = qrcodeFormStr
   await nextTick()
-  message.loading({content: () => '正在前往支付，请稍后', duration: 1500})
+  message.loading({ content: () => '正在前往支付，请稍后', duration: 1500 })
   setTimeout(() => {
     document.forms[0].submit()
   }, 1500)
@@ -128,13 +137,13 @@ function orderStatusTxt(status: string) {
     INIT: '待支付',
     PAID: '已支付',
     SHIPPED: '已发放流量包',
-    EXPIRED: '已过期',
+    EXPIRED: '已过期'
   }
   const payLoad2: any = {
     INEFFECTIVE: '未生效',
     EFFECTIVE: '生效中',
     EXPIRED: '已过期',
-    CONSUMED: '已使用',
+    CONSUMED: '已使用'
   }
   return isOrder.value ? payload[status] || '-' : payLoad2[status] || '-'
 }
@@ -150,7 +159,15 @@ function changeTab() {
   dataSource.value = []
   initList()
 }
-
+function getValidityDate(item: any) {
+  const { gmtLoseEffect } = item
+  const tObj: Date = new Date()
+  tObj.setHours(23)
+  tObj.setMinutes(59)
+  tObj.setSeconds(59)
+  const sec = gmtLoseEffect - tObj.getTime()
+  return sec > 0 ? Math.ceil(sec / 24 / 60 / 60 / 1000) : 0
+}
 onMounted(() => {
   initList()
 })

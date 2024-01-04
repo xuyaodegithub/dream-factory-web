@@ -14,13 +14,20 @@
           <template #description>费用：{{ item.consumedTokenCount }}算力</template>
         </a-card-meta>
         <template #cover>
-          <img alt="example" :src="item.originalImageUrls" />
+          <div class="img-box">
+            <img alt="example" :src="item.originalImageUrls" />
+          </div>
         </template>
       </a-card>
       <a-empty v-if="!total" description="暂无历史记录" />
     </div>
     <a-config-provider :locale="zhCN">
-      <a-pagination v-model:current="pageIndex" :total="total" v-if="!!total" />
+      <a-pagination
+        v-model:current="pageIndex"
+        :total="total"
+        v-if="!!total"
+        @change="pageChange"
+      />
     </a-config-provider>
     <BathDownLoad
       v-if="openModal"
@@ -74,6 +81,11 @@ async function initList() {
   list.value = items
   total.value = totalCount || 0
 }
+function pageChange(page: number, size: number) {
+  pageSize.value = size
+  pageIndex.value = page
+  initList()
+}
 onMounted(() => {
   initList()
 })
@@ -126,6 +138,14 @@ onMounted(() => {
   }
   .ant-pagination {
     text-align: right;
+  }
+  .img-box {
+    height: 230px;
+    overflow: hidden;
+    img {
+      display: block;
+      width: 100%;
+    }
   }
 }
 </style>

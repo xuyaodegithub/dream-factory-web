@@ -108,6 +108,7 @@ async function toPay() {
       props.close && props.close()
     } catch (e: any) {}
     document.forms[0].submit()
+    htmlContent.value = ''
   }, 1500)
 }
 onMounted(async () => {

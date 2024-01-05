@@ -67,3 +67,7 @@ export const getScrollToken = (payload: any) => {
 export const getZipDownLoadUrl = (payload: any) => {
   return postBlob(`${fileBase}/v1/download-zip-file`,payload)
 }
+//zip包地址
+export const getFiles = (payload: any) => {
+  return post(`${fileBase}/v1/list-files`,payload)
+}

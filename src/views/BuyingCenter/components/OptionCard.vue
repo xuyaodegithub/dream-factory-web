@@ -15,7 +15,7 @@
       <div class="subscription-desc">
         <div class="desc-title">包含</div>
         <div v-for="item in cardContent?.subscriptionDesc" :key="item.index" class="desc-info">
-          <CheckCircleOutlined/>
+          <CheckOutlined />
           {{ item }}
         </div>
       </div>
@@ -24,27 +24,27 @@
 </template>
 
 <script setup lang="ts">
-import {defineProps, defineEmits} from 'vue';
-import {CheckCircleOutlined} from '@ant-design/icons-vue';
-import {ref} from 'vue';
+import { defineProps, defineEmits } from 'vue'
+import { CheckOutlined } from '@ant-design/icons-vue'
+import { ref } from 'vue'
 
 const emit = defineEmits(['showRechargeDialog', 'showContactDialog'])
 
 interface CardContent {
-  subscriptionId: number;
-  subscriptionPrice: string;
-  subscriptionName: string;
-  subscriptionDesc: any[];
-  butootText: string;
+  subscriptionId: number
+  subscriptionPrice: string
+  subscriptionName: string
+  subscriptionDesc: any[]
+  butootText: string
 }
 
 const props = defineProps({
   cardContent: {
     required: true,
     type: Object,
-    default: () => ({subscriptionId: 1, subscriptionName: '',butootText:''})
+    default: () => ({ subscriptionId: 1, subscriptionName: '', butootText: '' })
   }
-});
+})
 
 const showModal = () => {
   if (props.cardContent.subscriptionId === 1) {
@@ -53,9 +53,7 @@ const showModal = () => {
   if (props.cardContent.subscriptionId === 2) {
     emit('showContactDialog')
   }
-
-};
-
+}
 </script>
 
 <style lang="less" scoped>
@@ -87,7 +85,7 @@ const showModal = () => {
   }
 
   .card-body-container {
-    padding: 0 40px;
+    padding: 0 20px;
 
     .subscription-button {
       display: flex;
@@ -99,7 +97,6 @@ const showModal = () => {
         height: 40px;
         font-weight: 600;
       }
-
     }
 
     .subscription-desc {
@@ -115,21 +112,22 @@ const showModal = () => {
         line-height: 26px;
       }
     }
-
   }
-
 
   &:hover {
     border-color: @hover-bg-color;
     border-radius: 10px;
-    transition: border-color 0.5s ease, border-radius 0.5s ease;
+    transition:
+      border-color 0.5s ease,
+      border-radius 0.5s ease;
 
     :deep(.ant-card-head) {
       background-color: @hover-bg-color;
       color: #ffffff;
-      transition: background-color 0.5s ease, color 0.5s ease;
+      transition:
+        background-color 0.5s ease,
+        color 0.5s ease;
     }
   }
-
 }
 </style>

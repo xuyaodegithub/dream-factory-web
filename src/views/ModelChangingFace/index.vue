@@ -79,14 +79,14 @@
               :width="80"
               :fallback="fallback"
             ></a-image>
-            <a-popover placement="rightBottom" trigger="click">
+            <a-popover placement="rightBottom" trigger="click" v-model:open="visibleMove">
               <template #title>
                 <div class="concat_us">
                   更多模特<span class="concat_us_dec"
                     >（想要专属模特?请联系商务定制）,<a-button
                       type="link"
                       size="small"
-                      @click="() => (openContactDialog = true)"
+                      @click="openContractUs"
                       >立即联系</a-button
                     ></span
                   >
@@ -122,11 +122,17 @@
       <RightContent ref="rightContent" :resultInfo="resultInfo" />
     </div>
     <ContactDialog :open="openContactDialog" :close="() => (openContactDialog = false)" />
+    <upLoadFile
+      v-if="openPerviewModal"
+      :open="openPerviewModal"
+      :close="() => (openPerviewModal = false)"
+      :allFileId="allFileId"
+    />
   </main>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onBeforeMount } from 'vue'
+import { ref, computed, reactive, onBeforeMount, watch, watchEffect } from 'vue'
 import { acceptFileList, customRequest, maxLen, selectNumberList } from '@/config/file'
 import {
   UploadOutlined,
@@ -135,16 +141,18 @@ import {
   DeleteOutlined,
   LeftCircleOutlined,
   RightCircleOutlined,
-  EyeOutlined
+  EyeOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { message, Modal } from 'ant-design-vue'
 import RightContent from './components/RightContent.vue'
 import MoveModels from './components/MoveModels.vue'
+import upLoadFile from './components/uploadFile.vue'
 import { initModelsList } from '@/services'
 import { userInfo } from '@/stores'
-import { uploadImg } from '@/services'
+import { uploadImg, getFiles } from '@/services'
 import { fallback } from '@/config'
-
+import { createVNode } from 'vue'
 const imgList: any = ref([])
 const fileList: any = ref([])
 const timer: any = ref(null)
@@ -152,6 +160,7 @@ const modelActive = ref<number>(0)
 const carousel: any = ref(null)
 const pictureNumer = ref(1)
 const modelSmile = ref(false)
+const visibleMove = ref(false)
 const leftLoading = ref(true)
 const resultInfo = reactive<any>({
   list: [],
@@ -160,7 +169,9 @@ const resultInfo = reactive<any>({
   modelId: ''
 })
 const rightContent: any = ref(null)
+const hasNewFile: any = ref(false)
 const openContactDialog: any = ref(false)
+const openPerviewModal: any = ref(false)
 //是否全部上传成功
 const allSuccess = computed(() => {
   const { value } = fileList
@@ -183,11 +194,6 @@ const consumption = computed(() => {
   const len = fileList.value.length
   return len * pictureNumer.value
 })
-//登录态
-const loginStatus = computed(() => {
-  const user: any = userInfo()
-  return !!user.userInfo?.phone
-})
 //默认展示的模特
 const defaultImgList = computed(() => {
   return imgList.value.slice(0, 9)
@@ -196,6 +202,19 @@ const defaultImgList = computed(() => {
 const moveImgList = computed(() => {
   return imgList.value.slice(9)
 })
+const currentSmile = computed(() => {
+  return imgList.value[modelActive.value]?.recommendSmile || false
+})
+const allFileId = computed(() => {
+  return fileList.value.map((item: any) => item.fileId || '')
+})
+watch(
+  currentSmile,
+  (n: any) => {
+    modelSmile.value = n
+  },
+  { deep: true, immediate: true }
+)
 onBeforeMount(async () => {
   const {
     data: { items = [] }
@@ -209,17 +228,17 @@ function deleteFiles() {
 }
 
 function imgUpload(fileObj: any) {
-  const loginStates = true //loginStatus.value
-  if (fileList.value.length > maxLen || !loginStates) {
+  const { file, fileList: l }: any = fileObj
+  const isDel = l.find((i: any) => i.uid === file.uid)
+  if (l.length >= maxLen && !isDel) {
     // 由於是一个一个上传的  只需要最后一次提示就好
     if (timer.value) {
       clearTimeout(timer.value)
       timer.value = null
     }
     timer.value = setTimeout(() => {
-      message.warning(!loginStates ? '请先登录' : `最多可以上传${maxLen}个文件，超出部分将会被忽略`)
+      message.warning(`最多可以上传${maxLen}个文件，超出部分将会被忽略`)
     }, 200)
-    if (!loginStates) fileList.value = []
     return
   }
   uploadImgs(fileObj)
@@ -231,10 +250,28 @@ function selectModel(idx: number) {
 }
 
 function confirmTask() {
-  resultInfo.list = JSON.parse(JSON.stringify(fileList.value))
-  resultInfo.number = pictureNumer.value
-  resultInfo.modelSmile = modelSmile.value
-  resultInfo.modelId = imgList.value[modelActive.value]?.modelId || 1
+  if (hasNewFile.value) {
+    resultInfo.list = JSON.parse(JSON.stringify(fileList.value))
+    resultInfo.number = pictureNumer.value
+    resultInfo.modelSmile = modelSmile.value
+    resultInfo.modelId = imgList.value[modelActive.value]?.modelId || 1
+    hasNewFile.value = false
+  } else {
+    Modal.confirm({
+      title: '当前图片已全部生成任务，请重新上传',
+      icon: createVNode(ExclamationCircleOutlined),
+      content: createVNode('div', { style: '' }, '确定后会自动清除已上传的图片'),
+      okText: '确定',
+      cancelText: '取消',
+      onOk() {
+        fileList.value = []
+      },
+      onCancel() {
+        console.log('Cancel')
+      },
+      class: 'test'
+    })
+  }
 }
 
 function changeFirstImg(img: any) {
@@ -242,7 +279,6 @@ function changeFirstImg(img: any) {
   const firstImg = imgList.value[0]
   const idx = imgList.value.findIndex((i: any) => i.modelId === modelId)
   imgList.value[0] = img
-  console.log(idx)
   if (idx > -1) {
     imgList.value.splice(idx, 1, firstImg)
   }
@@ -261,9 +297,18 @@ async function uploadImgs({ file }: any) {
   if (idx > -1) {
     fileList.value[idx].uploadEnd = true
     fileList.value[idx].fileId = items[0].fileId
+    hasNewFile.value = true
   }
 }
-function previewImg() {}
+function openContractUs() {
+  openContactDialog.value = true
+  visibleMove.value = false
+}
+async function previewImg() {
+  if (progress.value > 0 && progress.value < 100) return message.warning('图片上传中，请稍后')
+  if (!fileList.value.length) return message.warning('请先上传图片')
+  openPerviewModal.value = true
+}
 
 function getBase64(file: File) {
   return new Promise((resolve, reject) => {

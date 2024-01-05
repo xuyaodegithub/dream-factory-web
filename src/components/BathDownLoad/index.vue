@@ -7,15 +7,22 @@
     class="down_dialog"
     width="800px"
   >
-    <div class="all_replace">
-      <a-button type="primary" @click="downLoad(1)" style="margin-right: 24px">下载全部</a-button>
-      <a-button type="primary" @click="downLoad(2)">下载认可</a-button>
+    <div class="all_replace" v-if="list.length">
+      <a-button
+        type="primary"
+        @click="downLoad(1)"
+        style="margin-right: 24px"
+        :disabled="messageBox"
+        >下载全部</a-button
+      >
+      <a-button type="primary" @click="downLoad(2)" :disabled="messageBox">下载认可</a-button>
     </div>
     <div class="all_img">
       <div class="img-item" v-for="it in list" :key="it.fileId" @click="choseThis(it)">
         <HeartOutlined :class="{ checked: checkedFileIds.includes(it.fileId) }" />
         <a-image :src="it.thumbnailFileUrl" :preview="false" :width="230"></a-image>
       </div>
+      <a-empty description="暂无记录可以查看" v-if="!list.length" />
     </div>
     <div class="down_dec">通过压缩包形式下载图片，已认可的图片为预览图片时点击“认可这张图”</div>
   </a-modal>
@@ -34,6 +41,7 @@ const props: any = defineProps({
   close: Function
 })
 const list: any = ref([])
+const messageBox: any = ref(null)
 const checkedFileIds = ref<string[]>([])
 const title = computed(() => {
   const { processName, startTime } = props.itemInfo
@@ -48,6 +56,8 @@ function choseThis(item: any) {
 async function downLoad(type: number) {
   if (type === 2 && !checkedFileIds.value.length) return message.warning('请先选择要下载的图片')
   if (type === 1 && !list.value.length) return message.warning('当前无图片可以下载')
+  messageBox.value = message.loading('正在生成文件zip包，请稍后...', 0)
+
   //下载全部
   const payload = {
     fileIdList: type === 1 ? list.value.map((i: any) => i.fileId) : checkedFileIds.value
@@ -61,6 +71,8 @@ async function downLoad(type: number) {
   saveLink.download = `${type === 1 ? '全部图片.zip' : '认可图片.zip'}`
   saveLink.click()
   URL.revokeObjectURL(objurl)
+  messageBox.value()
+  messageBox.value = null
 }
 onMounted(async () => {
   const { processId = '' } = props?.itemInfo || {}
@@ -89,6 +101,7 @@ onMounted(async () => {
     padding: 12px 0;
     align-items: center;
     max-height: 500px;
+    position: relative;
     overflow: auto;
     flex-wrap: wrap;
     .img-item {
@@ -101,8 +114,10 @@ onMounted(async () => {
         top: 12px;
         right: 12px;
         z-index: 99;
+        color: #999999;
+
         &.checked {
-          color: #eb2f96;
+          color: #f16d2b;
         }
       }
     }
@@ -111,6 +126,15 @@ onMounted(async () => {
       width: 120px;
       text-align: right;
     }
+    .ant-empty {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+  .all_img {
+    min-height: 350px;
   }
 
   .down_dec {

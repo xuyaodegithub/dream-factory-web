@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
-import {
-  StepBackwardOutlined
-} from '@ant-design/icons-vue';
-import { onMounted, ref,onUnmounted } from "vue";
-import {resizeImg} from '@/config'
+import { StepBackwardOutlined } from '@ant-design/icons-vue'
+import { onMounted, ref, onUnmounted } from 'vue'
+import { resizeImg } from '@/config'
 const router = useRouter()
 const route = useRoute()
 const pageList: any = import.meta.glob('@/assets/indexPage/index*.png', { eager: true })
 const modelList: any = import.meta.glob('@/assets/indexPage/model*.png', { eager: true })
 const imageList: any = ref([])
-const oriImgsInfo:any = ref([])
+const oriImgsInfo: any = ref([])
 
 async function initImages() {
-  const list = Object.keys(modelList).map((item:any) => {
-    return new Promise(resolve => {
+  const list = Object.keys(modelList).map((item: any) => {
+    return new Promise((resolve) => {
       const img = new Image()
       img.onload = () => {
         resolve(img)
@@ -23,18 +21,18 @@ async function initImages() {
     })
   })
   const l = await Promise.all(list)
-  oriImgsInfo.value=l
+  oriImgsInfo.value = l
   imageList.value = resizeImg(oriImgsInfo.value)
 }
-function resize(){
+function resize() {
   imageList.value = resizeImg(oriImgsInfo.value)
 }
 onMounted(async () => {
   await initImages()
-  window.addEventListener('resize',resize)
+  window.addEventListener('resize', resize)
 })
-onUnmounted(()=>{
-  window.removeEventListener('resize',resize)
+onUnmounted(() => {
+  window.removeEventListener('resize', resize)
 })
 </script>
 
@@ -44,13 +42,18 @@ onUnmounted(()=>{
       <a-image :src="pageList[item].default" :preview="false"></a-image>
       <div class="use-btn-cover" v-if="idx === 0">
         <a-button size="large" @click="router.push('/changingFace')">立即使用</a-button>
-<!--        <a-button size="large">合作咨询</a-button>-->
+        <!--        <a-button size="large">合作咨询</a-button>-->
       </div>
     </div>
     <div class="exhibition-of-works">
       <div class="model_item" v-for="item in imageList" :key="item">
         <a-image :src="item.src" :preview="false" :height="item.h"></a-image>
       </div>
+    </div>
+    <div class="index_footer">
+      <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank"
+        >浙ICP备2022020264号-2</a
+      >
     </div>
   </main>
 </template>
@@ -113,8 +116,19 @@ onUnmounted(()=>{
 
         &:hover {
           transform: scale(1.5);
-          transition: all linear .3s;
+          transition: all linear 0.3s;
         }
+      }
+    }
+  }
+  .index_footer {
+    text-align: center;
+    background-color: #333333;
+    line-height: 56px;
+    a {
+      color: #999999;
+      &:hover {
+        color: #ffffff;
       }
     }
   }

@@ -10,11 +10,6 @@ import { removeToken } from '@/utils'
 const userStore: any = userInfo()
 const showContent = ref(false)
 const guard = useGuard()
-const route: any = useRoute()
-const isIndex = computed(() => {
-  const { meta: { showRecord = false } = {} } = route
-  return showRecord
-})
 onMounted(async () => {
   const loginStatus = await getLoginState()
   // const authClient: AuthenticationClient = await guard.getAuthClient()
@@ -61,11 +56,6 @@ async function getTenantsWithBills() {
       <a-layout-content>
         <router-view></router-view>
       </a-layout-content>
-      <a-layout-footer v-if="isIndex" class="index_footer">
-        <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank"
-          >浙ICP备2022020264号-2</a
-        >
-      </a-layout-footer>
     </template>
   </a-layout>
 </template>
@@ -81,16 +71,6 @@ async function getTenantsWithBills() {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-  }
-  .index_footer {
-    text-align: center;
-    background-color: #333333;
-    a {
-      color: #999999;
-      &:hover {
-        color: #ffffff;
-      }
-    }
   }
 }
 </style>

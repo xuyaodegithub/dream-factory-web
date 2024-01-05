@@ -100,7 +100,7 @@ body {
 
 /* 滚动条上的滑块 */
 ::-webkit-scrollbar-thumb {
-  background-color: #999999;
+  background-color: rgba(0, 0, 0, 0.15);
   /* 滚动条滑块颜色 */
   border-radius: 5px;
   /* 滑块圆角 */
@@ -108,7 +108,7 @@ body {
 
 /* 鼠标悬停在滚动条上的滑块 */
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
+  background-color: #999999;
   /* 悬停时的滑块颜色 */
 }
 

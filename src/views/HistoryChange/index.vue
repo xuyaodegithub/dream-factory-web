@@ -10,12 +10,23 @@
         :key="item.processId"
         @click="openDetail(item)"
       >
-        <a-card-meta :title="`${item.processName}：${formatDate(item.startTime)}`">
+        <a-card-meta>
+          <template #title>
+            <div
+              class="card_title_box"
+              :title="`${item.processName}：${formatDate(item.startTime)}`"
+            >
+              {{ `${item.processName}：${formatDate(item.startTime)}` }}
+            </div></template
+          >
           <template #description>费用：{{ item.consumedTokenCount }}算力</template>
         </a-card-meta>
         <template #cover>
           <div class="img-box">
             <img alt="example" :src="item.originalImageUrls" />
+          </div>
+          <div class="pending_task" v-if="![FAILED, SUCCEED].includes(item.processStatus)">
+            图片生成中
           </div>
         </template>
       </a-card>
@@ -24,6 +35,8 @@
     <a-config-provider :locale="zhCN">
       <a-pagination
         v-model:current="pageIndex"
+        :defaultPageSize="14"
+        :pageSizeOptions="[14, 28, 50, 100]"
         :total="total"
         v-if="!!total"
         @change="pageChange"
@@ -50,7 +63,7 @@ const [PENDING, PROCESSING, FAILED, SUCCEED] = ['PENDING', 'PROCESSING', 'FAILED
 const openModal = ref(false)
 const selectItem = ref({})
 const list = ref<any[]>([])
-const pageSize = ref(10)
+const pageSize = ref(14)
 const pageIndex = ref(1)
 const total = ref(0)
 const router = useRouter()
@@ -59,7 +72,7 @@ function openDetail(item: any) {
   const messageText: any = {
     [PENDING]: '任务排队中，请稍后再试',
     [PROCESSING]: '任务进行中，请稍后再试',
-    [FAILED]: '当前任务已失败，去看看其他的吧',
+    // [FAILED]: '当前任务已失败，去看看其他的吧',
     [SUCCEED]: ''
   }
   if (messageText[processStatus]) {
@@ -131,6 +144,12 @@ onMounted(() => {
       top: 50%;
       transform: translate(-50%, -50%);
     }
+    .card_title_box {
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
   :deep(.ant-pagination-item-link) {
     display: flex;
@@ -138,6 +157,9 @@ onMounted(() => {
   }
   .ant-pagination {
     text-align: right;
+    :deep(.ant-select-selector) {
+      width: 100px;
+    }
   }
   .img-box {
     height: 230px;
@@ -146,6 +168,18 @@ onMounted(() => {
       display: block;
       width: 100%;
     }
+  }
+  .pending_task {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    left: 0;
+    top: 0;
+    text-align: center;
+    z-index: 11;
+    line-height: 230px;
   }
 }
 </style>

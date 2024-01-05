@@ -26,14 +26,14 @@
               class="result_list_box_item"
               v-for="n in it.number"
               :key="n"
-              @click="checkThis(item.processedFileList, n - 1)"
+              @click="checkThis(item, n - 1)"
             >
               <HeartOutlined
                 v-if="it.processStatus === SUCCEED"
                 :class="{ checked: checkedStatus(item, n - 1) }"
               />
               <a-image
-                :src="imageUrlMethod(it, item, n)"
+                :src="imageUrlMethod(it, item, n - 1)"
                 :preview="false"
                 :width="200"
                 v-if="[FAILED, SUCCEED].includes(it.processStatus)"
@@ -44,10 +44,22 @@
                 <a-skeleton-button active size="small" class="placeholder_button" />
                 <div class="placeholder_text">图片生成中，请稍后...</div>
               </div>
+              <!-- //失败图标 -->
+              <a-popover>
+                <template #content>
+                  <p>{{ item.failedReason || '-' }}</p>
+                </template>
+                <ExclamationCircleOutlined
+                  v-if="it.processStatus === FAILED && !item.processedFileList?.length"
+                />
+              </a-popover>
+
               <div
                 class="previewMask"
                 @click.stop="perviewCurrent(item, n - 1)"
-                v-if="[FAILED, SUCCEED].includes(it.processStatus)"
+                v-if="
+                  [SUCCEED, FAILED].includes(it.processStatus) && item.processedFileList?.length
+                "
               >
                 <EyeOutlined />
                 预览
@@ -68,16 +80,12 @@
       <div class="sec-img">
         <HeartOutlined
           :class="{ checked: perviewChecked }"
-          v-if="!!perviewObj.processedFileList.length"
+          v-if="!!perviewObj.resOriginalFileUrl"
         />
-        <a-image
-          :src="perviewObj.processedFileList[perviewObj.index]?.originalFileUrl || fallback"
-          width="100%"
-          :preview="false"
-        >
+        <a-image :src="perviewObj.resOriginalFileUrl || fallback" width="100%" :preview="false">
           <template #placeholder>
             <a-image
-              :src="perviewObj.processedFileList[perviewObj.index]?.thumbnailFileUrl || fallback"
+              :src="perviewObj.resThumbnailFileUrl || fallback"
               width="100%"
               :preview="false"
             />
@@ -88,8 +96,8 @@
       <a-button
         type="primary"
         class="view_btn"
-        @click="checkThis(perviewObj.processedFileList, perviewObj.index)"
-        v-if="!!perviewObj.processedFileList.length"
+        @click="checkThis()"
+        v-if="!!perviewObj.resOriginalFileUrl"
       >
         {{ perviewChecked ? '取消认可' : '认可这张图' }}
       </a-button>
@@ -119,18 +127,19 @@ const props = defineProps({
     default: () => ({ list: [], number: 4, modelSmile: false, modelId: '' })
   }
 })
-import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
+import { LeftOutlined, RightOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 
 const checkedImg: any = ref([])
 const open: any = ref(false)
 const downShow: any = ref(false)
 const processList: any = ref([])
-const perviewObj: any = ref({
-  originalFileUrl: '',
-  thumbnailFileUrl: '',
-  processedFileList: [],
-  index: 0
+const perViewFileId = ref('')
+const perviewObj = computed(() => {
+  // const idx = allImages.value.findIndex((i: any) => i.fileId === fileId)
+  const idx = allImages.value.findIndex((i: any) => i.fileId === perViewFileId.value)
+  if (idx > -1) return allImages.value[idx]
+  else return {}
 })
 const taskUids = computed(() => {
   return processList.value.reduce((pre: any, i: any) => {
@@ -140,11 +149,7 @@ const taskUids = computed(() => {
 })
 //当前预览图片是否认可状态
 const perviewChecked = computed(() => {
-  const { processedFileList, index }: any = perviewObj.value
-
-  return processedFileList.length
-    ? checkedImg.value.includes(processedFileList[index]?.fileId)
-    : false
+  return checkedImg.value.includes(perViewFileId.value)
 })
 const allFileIds = computed(() => {
   return processList.value.reduce((per: Array<any>, item: any) => {
@@ -155,6 +160,27 @@ const allFileIds = computed(() => {
     )
     return [...per, ...fileIds]
   }, [])
+})
+const allImages = computed(() => {
+  return processList.value
+    .reduce((per: Array<any>, item: any) => {
+      const { list }: any = item
+      const files = list.reduce(
+        (p: any, it: any) => [
+          ...p,
+          ...it.processedFileList.map((i: any) => ({
+            fileId: i.fileId,
+            originalFileUrl: it.originalFileUrl || '',
+            thumbnailFileUrl: it.thumbnailFileUrl || '',
+            resOriginalFileUrl: i.originalFileUrl || '',
+            resThumbnailFileUrl: i.thumbnailFileUrl || ''
+          }))
+        ],
+        []
+      )
+      return [...per, ...files]
+    }, [])
+    .filter((i: any) => i.resThumbnailFileUrl)
 })
 watch(
   props.resultInfo,
@@ -173,6 +199,8 @@ async function createTask() {
         processedFileList: [],
         originalFileUrl: '',
         thumbnailFileUrl: '',
+        taskStatus: PENDING,
+        failedReason: '',
         ...item
       }
     })
@@ -216,7 +244,9 @@ async function rotationResults(processId: string | number) {
     resList.forEach((item: any) => {
       const {
         baseFile: { fileId = '', originalFileUrl = '', thumbnailFileUrl = '' } = {},
-        processedFileList = []
+        processedFileList = [],
+        taskStatus = SUCCEED,
+        failedReason = '换脸失败'
       }: any = item
       const currfileIdx = list.findIndex(({ fileId: fId }: any) => fId === fileId)
       if (currfileIdx > -1) {
@@ -224,7 +254,9 @@ async function rotationResults(processId: string | number) {
           ...list[currfileIdx],
           originalFileUrl,
           thumbnailFileUrl,
-          processedFileList
+          processedFileList,
+          taskStatus,
+          failedReason: failedReason || '换脸失败'
         }
       }
     })
@@ -234,6 +266,7 @@ async function rotationResults(processId: string | number) {
     if ([FAILED, SUCCEED].includes(processStatus)) {
       processList.value[currIdx].processStatus = processStatus
       updataBill()
+      console.log(processList.value, '------')
     }
     // console.log(processList.value, 'ppppppppp')
   } catch (e: any) {}
@@ -243,12 +276,20 @@ onMounted(() => {
   // rotationResults(10)
 })
 
-function checkThis(list: Array<any>, idx: number) {
-  const fileId = list[idx]?.fileId || ''
-  const i: number = checkedImg.value.findIndex((t: string) => t === fileId)
+function checkThis(item?: any, n: number = 0) {
+  if (item) {
+    const { processedFileList = [] } = item || {}
+    const fileId = processedFileList[n]?.fileId || ''
+    const i: number = checkedImg.value.findIndex((t: string) => t === fileId)
+    if (i > -1) {
+      checkedImg.value.splice(i, 1)
+    } else checkedImg.value.push(fileId)
+    return
+  }
+  const i: number = checkedImg.value.findIndex((t: string) => t === perViewFileId.value)
   if (i > -1) {
     checkedImg.value.splice(i, 1)
-  } else checkedImg.value.push(fileId)
+  } else checkedImg.value.push(perViewFileId.value)
 }
 
 function checkedStatus(item: any, idx: number) {
@@ -257,15 +298,37 @@ function checkedStatus(item: any, idx: number) {
 }
 
 function perviewCurrent(item: any, n: number) {
-  const { originalFileUrl, thumbnailFileUrl, processedFileList } = item
-  perviewObj.value = { originalFileUrl, thumbnailFileUrl, processedFileList, index: n }
+  const { processedFileList = [] } = item
+  const fileId = processedFileList[n]?.fileId || ''
+  if (!fileId) return
+  // const idx = allImages.value.findIndex((i: any) => i.fileId === fileId)
+  perViewFileId.value = fileId
   open.value = true
+  // const { originalFileUrl, thumbnailFileUrl, processedFileList } = item
+  // perviewObj.value = { originalFileUrl, thumbnailFileUrl, processedFileList, index: n }
 }
 
 function perviewNext(type: boolean) {
-  const { index, processedFileList } = perviewObj.value
-  if (type && index < processedFileList.length - 1) perviewObj.value.index += 1
-  else if (!type && index !== 0) perviewObj.value.index -= 1
+  const idx = allImages.value.findIndex((item: any) => item.fileId === perViewFileId.value)
+  if (type) {
+    const ix = allImages.value.findIndex(
+      (item: any, i: number) => item.resOriginalFileUrl && i > idx
+    )
+    if (ix > -1) perViewFileId.value = allImages.value[ix]?.fileId || ''
+    else {
+      const i = allImages.value.findIndex((item: any) => item.resOriginalFileUrl)
+      perViewFileId.value = allImages.value[i]?.fileId || ''
+    }
+  } else {
+    const ix = allImages.value.findLastIndex(
+      (item: any, i: number) => item.resOriginalFileUrl && i < idx
+    )
+    if (ix > -1) perViewFileId.value = allImages.value[ix]?.fileId || ''
+    else {
+      const i = allImages.value.findLastIndex((item: any) => item.resOriginalFileUrl)
+      perViewFileId.value = allImages.value[i]?.fileId || ''
+    }
+  }
 }
 function downLoadImgs() {
   if (!allFileIds.value.length) return message.warning('当前无图片可以下载，请先去上传试试吧')
@@ -273,21 +336,26 @@ function downLoadImgs() {
 }
 async function handleOk(type: number) {
   if (type === 2 && !checkedImg.value.length) return message.warning('请先选择认可的图片')
+  const hide = message.loading('正在生成文件zip包，请稍后...', 0)
+
   //下载全部
   const payload = {
     fileIdList: type === 1 ? allFileIds.value : checkedImg.value
   }
+  downShow.value = false
   const data = await getZipDownLoadUrl(payload)
   const blob = new Blob([data], { type: 'application/zip' })
   const objurl = URL.createObjectURL(blob)
-  console.log(objurl, 'objurl')
   const saveLink = document.createElement('a')
   saveLink.href = objurl
   saveLink.download = `${type === 1 ? '全部图片.zip' : '认可图片.zip'}`
   saveLink.click()
   URL.revokeObjectURL(objurl)
+  setTimeout(() => {
+    hide()
+  }, 1500)
+
   // window.open(data)
-  downShow.value = false
 }
 async function updataBill() {
   const res2 = await initBillings({})
@@ -299,12 +367,13 @@ async function updataBill() {
 function imageUrlMethod(it: any, item: any, n: number) {
   const { processStatus = '' } = it
   const { processedFileList = [], thumbnailFileUrl = '' } = item
+  if (processedFileList.length) {
+    return processedFileList[n]?.thumbnailFileUrl || thumbnailFileUrl
+  }
   if (processStatus === FAILED) {
     return processedFileList.length
       ? processedFileList[n]?.thumbnailFileUrl || thumbnailFileUrl
       : thumbnailFileUrl
-  } else {
-    return processedFileList[n]?.thumbnailFileUrl || thumbnailFileUrl
   }
 }
 </script>
@@ -377,6 +446,14 @@ function imageUrlMethod(it: any, item: any, n: number) {
           min-height: 200px;
           position: relative;
           overflow: hidden;
+          .anticon-exclamation-circle {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 18px;
+            color: #ff4d4f;
+            cursor: pointer;
+          }
 
           .skeleton_img {
             position: absolute;
@@ -433,9 +510,10 @@ function imageUrlMethod(it: any, item: any, n: number) {
             z-index: 99;
             cursor: pointer;
             font-weight: 400;
+            color: #999999;
 
             &.checked {
-              color: #eb2f96;
+              color: #f16d2b;
             }
           }
         }
@@ -559,7 +637,7 @@ function imageUrlMethod(it: any, item: any, n: number) {
         color: #999999;
         font-weight: 400;
         &.checked {
-          color: #eb2f96;
+          color: #f16d2b;
         }
       }
     }

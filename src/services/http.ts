@@ -3,7 +3,7 @@ import {message} from 'ant-design-vue';
 // import qs from 'qs'
 import {getToken, removeToken, clearCookie, getTenant} from "../utils/index";
 import router from '@/router'
-const t = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ijd2VHNCMXFfd0hpbDBVajFjWTVMb3NpUmZfMW1kVURTUi0xZU5vajNVZWMifQ.eyJzdWIiOiI2NTc5YjNiYTdlNWI2NmFlMjMwOGRmZDgiLCJhdWQiOiI2NTc5MTNmYmZiZmQ5MjdiODA5YTNjYzMiLCJzY29wZSI6Im9wZW5pZCBwaG9uZSBwcm9maWxlIGFkZHJlc3Mgb2ZmbGluZV9hY2Nlc3MgZW1haWwiLCJpYXQiOjE3MDM2OTYxNzYsImV4cCI6MTcxNTc5MjE3NiwianRpIjoibmRRMmpLV21uWXF0R3hDUUZBcjlic1JzRHJyM2hfS2E2U05aWGhsSFZrayIsImlzcyI6Imh0dHBzOi8vZGV2LWRpZ2l0YWwtZHJlYW0uYXV0aGluZy5jbi9vaWRjIn0.bsFPqaI8IbkOfyajGIw6-kO02ZVP19Ngkp5rHxP7lU0drPn_rnD6yLIpB0x0qquZz-MSiNFK7yDQPHy93YcGsNfzStheke3Iitlpeud5UY-oJMVznI18P815gdjwNUAgfAT6Zz7oa8hPNRWZzW0G30N0VvRDefuRuFnIMqtcBmX0rHLC5NXD1hjg8Qv454fcEgzWXtwwwvlPL14JxRSt8BEMsebcBrwdM-aTBAGDdhI1ja7Lm4BpDJDAZrGDiBywJ4Kv0W5CzP0PS-Pcr5c-vFgBaMAh3bgZkGXSVTwAadSNGJa2IRGdVyItMeJTGhXllN35LPqrfLAN9lzmuD4PZA'
+const t = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ijd2VHNCMXFfd0hpbDBVajFjWTVMb3NpUmZfMW1kVURTUi0xZU5vajNVZWMifQ.eyJzdWIiOiI2MzQ1NWU4OWU1OGUzYzRiMjk3NzRmMTciLCJhdWQiOiI2NTc5MTNmYmZiZmQ5MjdiODA5YTNjYzMiLCJzY29wZSI6Im9wZW5pZCBhZGRyZXNzIG9mZmxpbmVfYWNjZXNzIHBob25lIGVtYWlsIHByb2ZpbGUiLCJpYXQiOjE3MDQyMDk0NDgsImV4cCI6MTcxNjMwNTQ0OCwianRpIjoiOVR1eWw1c01TNENaSUpuNE1yNUNkdHpPbXUxNzN0aWZ6d0ZWbEhieGFTTCIsImlzcyI6Imh0dHBzOi8vZGV2LWRpZ2l0YWwtZHJlYW0uYXV0aGluZy5jbi9vaWRjIn0.uekwURJRg8DHisuZwvZyHbdBCZeJ24DtWkuKmM5IS1Y1FYVtEIqucduiI8rA7Th71nxBof323ilyA1fGnPj_tFXYfSnRQjvAFadn_0WH0mmXLm-jov8mFAIRFiywOFm1ZyRC_PoP3ElJcSh4BnAq9H3giizOafEeXegFqrbzT8aYc9vbXaRXm_qW5oNkUHvSQ1qLz0d-iO_1O0qWRFrcSvx5k7fU9XQKR7E0i6Et-as-dTA39L7YQEBypcLT_PGd1wfYf7bZSf7_teGfUdtNOqh8D6IA6p71FuhbgfXAEUMLZJMBgDNB67NoLLqHJmBfjrdEzxm8_S5SqjHVgZzIfw'
 
 axios.defaults.withCredentials = true//表示跨域请求时是否需要使用凭证,默认false，一般请求携带cookie是设置为true
 // })
@@ -33,7 +33,6 @@ instance.interceptors.response.use((response: any) => {//为自定义axios设置
     router.replace('/')
     return res
   } else {
-    //这个接口特殊处理下
     if(!response.config.url?.endsWith('download-zip-file'))message.error(res.message || '系统错误')
     return res
     // return Promise.reject(response.data)

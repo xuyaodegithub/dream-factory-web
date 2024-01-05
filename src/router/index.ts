@@ -1,5 +1,4 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import {userInfo} from "@/stores";
 import {message} from 'ant-design-vue';
 import {useGuard} from '@authing/guard-vue3'
 
@@ -37,25 +36,37 @@ export const routes: any = [
         path: 'buy',
         name: '购买中心',
         component: () => import('@/views/BuyingCenter/index.vue'),
-        hidden: true
+        hidden: true,
+        meta: {
+          needLogin: true,
+        }
       },
       {
         path: 'myOrder',
         name: '我的订单',
         component: () => import('@/views/MyOrder/index.vue'),
-        hidden: true
+        hidden: true,
+        meta: {
+          needLogin: true,
+        }
       },
       {
         path: 'historyChange',
         name: '历史记录',
         component: () => import('@/views/HistoryChange/index.vue'),
-        hidden: true
+        hidden: true,
+        meta: {
+          needLogin: true,
+        }
       },
       {
         path: 'paySuccess',
         name: '支付页面',
         component: () => import('@/views/BuyingCenter/paySuccess.vue'),
-        hidden: true
+        hidden: true,
+        meta: {
+          needLogin: true,
+        }
       },
     ]
   },
@@ -64,12 +75,14 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
 })
-// router.beforeEach((to: any, from: any, next: any) => {
-//   const user = userInfo()
-//   if (!user.userInfo?.phone && to?.meta?.needLogin) {
-//     message.error('请先登录')
-//     return next('/')
-//   }
-//   next()
-// })
+router.beforeEach(async (to: any, from: any, next: any) => {//需要登录的页面需要校验
+  const guard = useGuard();
+  const loginStatus: any = await guard.checkLoginStatus()
+  console.log(guard,'guardguardguard')
+  if (!loginStatus && to.meta.needLogin) {
+    guard.startWithRedirect()
+    return false
+  }
+  next()
+})
 export default router

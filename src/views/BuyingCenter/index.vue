@@ -30,7 +30,13 @@ const subscriptionList: any = ref([
     subscriptionId: 1,
     subscriptionPrice: '480/月起',
     subscriptionName: '算力充值包',
-    subscriptionDesc: ['根据充值额度生成图片', '下载高清图片', '提供更多数字人模特'],
+    subscriptionDesc: [
+      '拥有算力生成图片',
+      '提供超多数字人模特选择',
+      '一次性可上传20张图片',
+      '批量下载高清图片',
+      '可提供数字人版权证书'
+    ],
     butootText: '立即充值'
   },
   {
@@ -38,11 +44,13 @@ const subscriptionList: any = ref([
     subscriptionPrice: '请联系商务',
     subscriptionName: '定制服务',
     subscriptionDesc: [
-      '更多可生成图片',
-      '下载高清图片',
-      '提供更多数字人模特',
-      '可定制数字人',
-      '专业的人工智能服务'
+      '拥有算力生成图片',
+      '提供超多数字人模特选择',
+      '一次性可上传20张图片',
+      '批量下载高清图片',
+      '可提供数字人版权证书',
+      '付费可提供定制数字人服务',
+      '专业的人工智能技术服务'
     ],
     butootText: '立即联系'
   }

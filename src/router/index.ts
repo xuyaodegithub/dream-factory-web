@@ -76,13 +76,14 @@ const router = createRouter({
   routes
 })
 router.beforeEach(async (to: any, from: any, next: any) => {//需要登录的页面需要校验
-  const guard = useGuard();
-  const loginStatus: any = await guard.checkLoginStatus()
-  console.log(guard,'guardguardguard')
-  if (!loginStatus && to.meta.needLogin) {
-    guard.startWithRedirect()
-    return false
-  }
-  next()
+  if (to.meta.needLogin) {
+      const guard = useGuard()
+      const loginStatus: any = await guard.checkLoginStatus()
+      if (!loginStatus) {
+        guard.startWithRedirect()
+        return false
+      }
+    }
+    next()
 })
 export default router

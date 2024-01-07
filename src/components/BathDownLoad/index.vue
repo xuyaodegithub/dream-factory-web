@@ -71,8 +71,10 @@ async function downLoad(type: number) {
   saveLink.download = `${type === 1 ? '全部图片.zip' : '认可图片.zip'}`
   saveLink.click()
   URL.revokeObjectURL(objurl)
-  messageBox.value()
-  messageBox.value = null
+  setTimeout(() => {
+    messageBox.value()
+    messageBox.value = null
+  }, 1500)
 }
 onMounted(async () => {
   const { processId = '' } = props?.itemInfo || {}

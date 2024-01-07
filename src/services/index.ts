@@ -1,6 +1,7 @@
 import {post, get, upPost, put,postBlob} from './http'
 const base = import.meta.env.VITE_BASE_URL
 const fileBase = import.meta.env.VITE_FILE_BASE_URL
+const corsBase = import.meta.env.VITE_FILE_CORS
 //余额
 export const initBillings = (payload: any) => {
   return get(`${base}/v1/token-digest`, payload)
@@ -31,7 +32,7 @@ export const initOrderDetail = (orderId: any) => {
 }
 //上传文件
 export const uploadImg = (payload: any) => {
-  return upPost(`${fileBase}/v1/upload-files`, payload)
+  return upPost(`${corsBase}/v1/upload-files`, payload)
 }
 //开始换脸任务
 export const commitProcess = (payload: any) => {
@@ -65,7 +66,7 @@ export const getScrollToken = (payload: any) => {
 }
 //zip包地址
 export const getZipDownLoadUrl = (payload: any) => {
-  return postBlob(`${fileBase}/v1/download-zip-file`,payload)
+  return postBlob(`${corsBase}/v1/download-zip-file`,payload)
 }
 //zip包地址
 export const getFiles = (payload: any) => {

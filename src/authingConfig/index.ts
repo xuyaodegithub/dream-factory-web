@@ -5,7 +5,7 @@ import {authingSdk, userInfo} from '@/stores'
 export default function (app: any) {
   app.use(
       createGuard({
-        appId: "657913fbfbfd927b809a3cc3",
+        appId: "658d0da715296106b4a68f09",
         isSSO: false,
         // config: {
         //   socialConnectionList: ['github'],
@@ -63,7 +63,7 @@ export const initAuthingWebUse = (Authing: any) => {
   const sdk: any = new Authing({
     // 应用的认证地址，例如：https://domain.authing.cn
     domain: 'https://dev-digital-dream.authing.cn',
-    appId: '657913fbfbfd927b809a3cc3',
+    appId: '658d0da715296106b4a68f09',
     // 登录回调地址，需要在控制台『应用配置 - 登录回调 URL』中指定
     redirectUri: 'http://dev.dreamher.cn:8080/callback',
     useImplicitMode: import.meta.env.VITE_MODE !== 'prod',

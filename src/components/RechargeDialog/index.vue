@@ -101,7 +101,7 @@ async function toPay() {
   } = await initPayOrder({ skuList: [{ skuId: skuId, skuCnt: 1 }] })
   htmlContent.value = qrcodeFormStr
   await nextTick()
-  const hide = message.loading('正在前往支付，请稍后', 0)
+  const hide = message.loading('正在前往支付，请稍后...', 0)
   setTimeout(() => {
     try {
       hide()

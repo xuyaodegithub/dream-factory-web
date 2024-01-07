@@ -61,6 +61,7 @@ onUnmounted(() => {
 .content {
   height: 100%;
   overflow: auto;
+  background-color: #ffffff;
 
   .page_image {
     margin-bottom: 80px;

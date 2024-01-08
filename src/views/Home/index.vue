@@ -11,17 +11,13 @@ const imageList: any = ref([])
 const oriImgsInfo: any = ref([])
 
 async function initImages() {
+  const r = /(?<=\_).*?(?=\.)/g
   const list = Object.keys(modelList).map((item: any) => {
-    return new Promise((resolve) => {
-      const img = new Image()
-      img.onload = () => {
-        resolve(img)
-      }
-      img.src = modelList[item].default
-    })
+    const size: any = item.match(r)[0].split('-')
+    return { width: +size[0], height: +size[1], src: modelList[item].default }
   })
-  const l = await Promise.all(list)
-  oriImgsInfo.value = l
+  // const l = await Promise.all(list)
+  oriImgsInfo.value = list
   imageList.value = resizeImg(oriImgsInfo.value)
 }
 function resize() {

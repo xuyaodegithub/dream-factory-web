@@ -518,7 +518,7 @@ function imageUrlMethod(it: any, item: any, n: number) {
           }
         }
 
-        :deep(.ant-image:hover ~ .previewMask) {
+        .result_list_box_item:hover .previewMask {
           transform: translateY(0);
         }
 

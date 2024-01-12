@@ -5,7 +5,7 @@ import {authingSdk, userInfo} from '@/stores'
 export default function (app: any) {
   app.use(
       createGuard({
-        appId: "658d0da715296106b4a68f09",
+        appId: import.meta.env.VITE_APP_ID,
         isSSO: false,
         // config: {
         //   socialConnectionList: ['github'],
@@ -37,8 +37,8 @@ export const handleAuthingLoginCallback = async () => {
     // 3. 获取到登录用户的用户信息
     const userMsg: any = await guard.trackSession()
     // 3. 获取到登录用户的用户信息
-    const {phone, photo, token} = userMsg
-    userInfoClass.saveUserInfo({phone, photo, token})
+    const {phone, photo, token,username,email} = userMsg
+    userInfoClass.saveUserInfo({phone, photo, token,username,email})
     // 你也可以重定向到你的任意业务页面，比如重定向到用户的个人中心
     // 如果你希望实现登录后跳转到同一页面的效果，可以通过在调用 startWithRedirect 时传入的自定义 state 实现
     // 之后你在这些页面可以通过 trackSession 方法获取用户登录态和用户信息
@@ -94,8 +94,8 @@ export const getLoginState = async () => {
   // 3. 获取到登录用户的用户信息 储存
   if (!userInfoClass.phone) {
     const userMsg: any = await guard.trackSession()
-    const {phone, photo, token} = userMsg
-    userInfoClass.saveUserInfo({phone, photo, token})
+    const {phone, photo, token,username,email} = userMsg
+    userInfoClass.saveUserInfo({phone, photo, token,username,email})
   }
   return true
 }

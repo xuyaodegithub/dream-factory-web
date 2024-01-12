@@ -10,11 +10,11 @@
     </a-menu>
     <div class="right-menu">
       <a-space :size="25" class="right-menu-space">
-        <span class="account-balance" v-if="userMsg.phone"
+        <span class="account-balance" v-if="isLogin"
           >账户余额: {{ userMsg.leftTokenCount }} 算力</span
         >
         <a-button @click="goToBuyingCenter">购买</a-button>
-        <a-button type="primary" v-if="!userMsg.phone" @click="getLogin">登录</a-button>
+        <a-button type="primary" v-if="!isLogin" @click="getLogin">登录</a-button>
         <a-dropdown v-else>
           <a-avatar size="large" class="avatar" :src="userHead || userMsg.photo"> </a-avatar>
           <template #overlay>
@@ -56,9 +56,15 @@ const userMsg = computed(() => {
   const { userInfo: userMsg } = userInfo()
   return userMsg
 })
+const isLogin = computed(() => {
+  const {
+    userInfo: { phone, username, email }
+  } = userInfo()
+  return phone || username || email
+})
 const menuItems = computed(() => {
   return [
-    { key: '1', icon: UserOutlined, label: userMsg.value.phone, path: '' },
+    { key: '1', icon: UserOutlined, label: isLogin.value, path: '' },
     { key: '2', icon: AccountBookOutlined, label: '我的订单', path: '/myOrder' },
     { key: '3', icon: ExportOutlined, label: '退出登录', path: '', logout }
   ]

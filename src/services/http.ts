@@ -15,8 +15,8 @@ instance.interceptors.request.use((config: any) => {//为自定义axios设置请
   // 在发送请求之前做些什么config是axios请求实例 里面包含axios各种配置项和相关属性信息
   const [token, Tenant] = [getToken(), getTenant()]
   if (token) {
-    config.headers['Authorization'] = token;
-    config.headers['Tenant'] = Tenant || '';
+    config.headers['Authorization'] = t//token;
+    config.headers['Tenant'] = Tenant || 'tenantbda521815672f58a';
   }
   return config
 }, (error: any) => {
